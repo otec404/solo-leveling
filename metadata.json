@@ -1,0 +1,6 @@
+{
+  "name": "Hidden Dashboard Login",
+  "description": "A sleek dark-mode login screen revealing a hidden dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
