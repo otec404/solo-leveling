@@ -166,27 +166,27 @@ export default function ManageSkillsView({
             </div>
           </motion.div>
         ) : (
-          <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
             {skills.map(skill => (
-              <div key={skill.id} className="group bg-zinc-900/30 backdrop-blur-md border border-zinc-800/60 rounded-2xl sm:rounded-[2rem] p-5 sm:p-6 flex flex-col hover:bg-zinc-900/50 hover:border-zinc-700/60 transition-all shadow-lg">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 flex items-center justify-center font-bold text-base sm:text-lg tracking-tight">
+              <div key={skill.id} className="group bg-zinc-900/30 backdrop-blur-md border border-zinc-800/60 rounded-xl sm:rounded-[2rem] p-3 sm:p-6 flex flex-col hover:bg-zinc-900/50 hover:border-zinc-700/60 transition-all shadow-lg">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3 sm:mb-4">
+                  <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 flex items-center justify-center font-bold text-xs sm:text-lg tracking-tight shrink-0">
                     {skill.shortForm}
                   </div>
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500 bg-zinc-900/80 px-2.5 py-1.5 rounded-lg border border-zinc-800">
+                  <span className="text-[8px] sm:text-[10px] uppercase tracking-wider font-semibold text-zinc-500 bg-zinc-900/80 px-1.5 py-1 sm:px-2.5 sm:py-1.5 rounded w-full sm:w-auto text-center truncate border border-zinc-800">
                     {skill.category}
                   </span>
                 </div>
                 
-                <h3 className="text-lg sm:text-xl font-semibold text-white tracking-tight mb-1">{skill.name}</h3>
-                <p className="text-xs text-zinc-500 uppercase tracking-widest font-medium mb-5 sm:mb-6">Mode: {skill.mode}</p>
+                <h3 className="text-sm sm:text-xl font-semibold text-white tracking-tight mb-0.5 sm:mb-1 truncate">{skill.name}</h3>
+                <p className="text-[9px] sm:text-xs text-zinc-500 uppercase tracking-widest font-medium mb-3 sm:mb-6 truncate">Mode: {skill.mode}</p>
                 
-                <div className="mt-auto flex items-center gap-2 pt-4 border-t border-zinc-800/50">
-                  <button onClick={() => openForm(skill)} className="flex-1 flex justify-center items-center gap-2 py-2.5 sm:py-2 text-sm text-zinc-400 hover:text-white bg-zinc-800/50 hover:bg-zinc-700/50 rounded-lg transition-colors">
-                    <Edit2 className="w-4 h-4" /> Edit
+                <div className="mt-auto flex sm:flex-row items-center gap-1.5 sm:gap-2 pt-2 sm:pt-4 border-t border-zinc-800/50">
+                  <button onClick={() => openForm(skill)} className="flex-1 flex justify-center items-center gap-1 sm:gap-2 py-1.5 sm:py-2 text-xs sm:text-sm text-zinc-400 hover:text-white bg-zinc-800/50 hover:bg-zinc-700/50 rounded-md sm:rounded-lg transition-colors" title="Edit">
+                    <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Edit</span>
                   </button>
-                  <button onClick={() => onDeleteSkill(skill.id)} className="flex-1 flex justify-center items-center gap-2 py-2.5 sm:py-2 text-sm text-red-500/70 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors">
-                    <Trash2 className="w-4 h-4" /> Delete
+                  <button onClick={() => onDeleteSkill(skill.id)} className="flex-1 flex justify-center items-center gap-1 sm:gap-2 py-1.5 sm:py-2 text-xs sm:text-sm text-red-500/70 hover:text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded-md sm:rounded-lg transition-colors" title="Delete">
+                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden sm:inline">Delete</span>
                   </button>
                 </div>
               </div>
