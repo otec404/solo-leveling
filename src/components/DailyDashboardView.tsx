@@ -149,7 +149,7 @@ const CompactBentoCard = ({ skill, log, date, onUpdateLog }: any) => {
   return (
     <div 
        onClick={handleTap}
-       className={`relative flex flex-col items-center justify-center p-2 sm:p-3 rounded-2xl sm:rounded-3xl border transition-all cursor-pointer active:scale-95 select-none overflow-hidden aspect-square ${
+       className={`relative flex flex-col items-start justify-between p-2 sm:p-3 rounded-2xl sm:rounded-3xl border transition-all cursor-pointer active:scale-95 select-none overflow-hidden aspect-square ${
           isLogged 
              ? 'bg-cyan-500/20 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.15)]' 
              : 'bg-zinc-900/30 border-white/5 hover:bg-zinc-800 hover:border-white/10'
@@ -158,30 +158,30 @@ const CompactBentoCard = ({ skill, log, date, onUpdateLog }: any) => {
        {/* Background Glow */}
        {isLogged && <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-transparent pointer-events-none" />}
 
-       {/* Quick Decrement Button (Counter only) */}
-       {skill.mode === 'counter' && isLogged && (
-         <div className="absolute top-1 sm:top-2 right-1 sm:right-2 flex gap-1 z-20">
-           <button onClick={handleDecrement} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-black/40 flex items-center justify-center text-zinc-400 hover:text-white border border-white/10 backdrop-blur-md">
-             <Minus size={12} strokeWidth={3} />
-           </button>
-         </div>
-       )}
-
-       {/* Icon / ShortForm */}
-       <div className="flex-1 flex flex-col items-center justify-center z-10 w-full pointer-events-none">
-          <span className={`text-3xl sm:text-4xl font-black tracking-tighter drop-shadow-md transition-all ${isLogged ? 'text-cyan-200 scale-110' : 'text-zinc-600'}`}>
+       {/* Top Row: Minus (Left) & Icon (Right) */}
+       <div className="flex justify-between items-start w-full z-10 pointer-events-none">
+          <div className="pointer-events-auto min-w-[24px]">
+             {/* Quick Decrement Button (Counter only) */}
+             {skill.mode === 'counter' && isLogged && (
+               <button onClick={handleDecrement} className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-black/40 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-black/60 border border-white/10 backdrop-blur-md transition-all active:scale-95">
+                 <Minus size={14} strokeWidth={3} />
+               </button>
+             )}
+          </div>
+          
+          <span className={`text-xl sm:text-2xl font-black tracking-tighter drop-shadow-md transition-all mt-1 mr-1 ${isLogged ? 'text-cyan-200' : 'text-zinc-600'}`}>
              {skill.shortForm}
           </span>
        </div>
 
-       {/* Label */}
-       <div className="w-full text-center mt-auto z-10 pointer-events-none">
-         <span className={`text-[9px] sm:text-[11px] font-bold tracking-wide truncate block px-1 transition-colors ${isLogged ? 'text-cyan-100' : 'text-zinc-500'}`}>
+       {/* Bottom Row: Label (Left) */}
+       <div className="flex flex-col justify-end items-start w-full z-10 pointer-events-none mt-auto">
+         <span className={`text-[10px] sm:text-[11px] font-bold tracking-wide leading-tight text-left max-w-[50%] sm:max-w-[60%] line-clamp-2 transition-colors ${isLogged ? 'text-cyan-100' : 'text-zinc-500'}`}>
             {skill.name}
          </span>
        </div>
 
-       {/* Status Badges */}
+       {/* Status Badges / Giant Number (Bottom Right) */}
        {skill.mode === 'counter' && isLogged && (
           <div 
              onClick={handleOpenRoller}
@@ -191,7 +191,7 @@ const CompactBentoCard = ({ skill, log, date, onUpdateLog }: any) => {
           </div>
        )}
        {skill.mode === 'checkbox' && isLogged && (
-          <div className="absolute bottom-1 sm:bottom-2 right-1 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-cyan-500 text-zinc-950 flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.4)] border border-cyan-300">
+          <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-cyan-500 text-zinc-950 flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.4)] border border-cyan-300">
              <Check size={14} strokeWidth={4} />
           </div>
        )}
