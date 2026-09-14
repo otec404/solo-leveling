@@ -230,9 +230,7 @@ const getLog = (logs: SkillLog[], skillId: string, date: string) => {
 // --- Vertical Roller Overlay ---
 const VerticalRoller = ({ value, onChange, onClose, theme }: { value: number, onChange: (v: number) => void, onClose: () => void, theme: any }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollTimeoutRef = useRef<any>(null);
-  const lastTick = useRef(value);
-  const ITEM_HEIGHT = 48; // Taller for the centered modal
+  const lastVal = useRef(value);
 
   useEffect(() => {
     try {
@@ -242,31 +240,25 @@ const VerticalRoller = ({ value, onChange, onClose, theme }: { value: number, on
       }
       if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     } catch(e) {}
+  }, []);
 
-    setTimeout(() => {
-      if (scrollRef.current) scrollRef.current.scrollTop = value * ITEM_HEIGHT;
-    }, 10);
+  // Sync scroll position if value changes externally
+  useEffect(() => {
+    if (scrollRef.current) {
+      const expected = value * 48;
+      if (Math.abs(scrollRef.current.scrollTop - expected) > 2) {
+         scrollRef.current.scrollTo({ top: expected, behavior: 'smooth' });
+      }
+    }
   }, [value]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    
-    const index = Math.round(el.scrollTop / ITEM_HEIGHT);
-    if (index !== lastTick.current && index >= 0 && index < 100) {
+    const v = Math.round(e.currentTarget.scrollTop / 48);
+    if (v !== lastVal.current && v >= 0 && v <= 1000) {
       playTick();
-      lastTick.current = index;
+      lastVal.current = v;
+      onChange(v);
     }
-
-    scrollTimeoutRef.current = setTimeout(() => {
-      if (scrollRef.current) {
-        const snappedIndex = Math.round(scrollRef.current.scrollTop / ITEM_HEIGHT);
-        if (snappedIndex !== value) {
-          onChange(snappedIndex);
-        }
-        scrollRef.current.scrollTo({ top: snappedIndex * ITEM_HEIGHT, behavior: 'smooth' });
-      }
-    }, 150);
   };
 
   return createPortal(
@@ -279,15 +271,25 @@ const VerticalRoller = ({ value, onChange, onClose, theme }: { value: number, on
          transition={{ duration: 0.2 }}
          onPointerDown={(e) => e.stopPropagation()}
          onClick={(e) => e.stopPropagation()}
-         className="relative w-24 h-64 bg-zinc-950/95 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-2xl z-10 overflow-hidden flex flex-col items-center"
+         className="relative w-32 h-[240px] bg-zinc-950/95 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-2xl z-10 overflow-hidden flex justify-center touch-pan-y"
       >
-         <button onClick={(e) => { e.stopPropagation(); if(value < 99) onChange(value + 1); playTick(); }} className="absolute top-2 z-20 w-11 h-11 flex items-center justify-center text-zinc-400 hover:text-white bg-black/40 rounded-full active:scale-90 transition-all"><Plus size={16} /></button>
-         
-         <div className="relative w-full flex-1 flex flex-col items-center justify-center pointer-events-none my-12">
-            <span className="text-4xl font-black text-white pointer-events-auto">{value}</span>
-         </div>
-         
-         <button onClick={(e) => { e.stopPropagation(); if(value > 0) onChange(value - 1); triggerHaptic('light'); }} className="absolute bottom-2 z-20 w-11 h-11 flex items-center justify-center text-zinc-400 hover:text-white bg-black/40 rounded-full active:scale-90 transition-all"><Minus size={16} /></button>
+        <div className={`absolute top-1/2 left-2 right-2 h-[48px] -translate-y-1/2 rounded-xl border pointer-events-none z-10 transition-colors ${theme.bgActive}`} />
+        <div 
+          ref={scrollRef} 
+          onScroll={handleScroll} 
+          className="h-full w-full overflow-y-auto snap-y snap-mandatory hide-scrollbar relative z-0"
+          style={{ scrollPaddingTop: 96 }}
+        >
+          <div style={{ height: 96, flexShrink: 0 }} />
+          {Array.from({ length: 1001 }).map((_, i) => (
+            <div key={i} className={`flex items-center justify-center snap-start text-4xl font-black transition-colors ${value === i ? theme.textMain : 'text-zinc-500'}`} style={{ height: 48, flexShrink: 0 }}>
+              {i}
+            </div>
+          ))}
+          <div style={{ height: 96, flexShrink: 0 }} />
+        </div>
+        <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-zinc-950 via-zinc-950/80 to-transparent pointer-events-none z-20" />
+        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent pointer-events-none z-20" />
       </motion.div>
     </div>,
     document.body
@@ -319,6 +321,56 @@ const CompactBentoCard: React.FC<{ skill: Skill, log: SkillLog, date: Date, onUp
     }
   };
 
+  if (skill.mode === 'counter') {
+    return (
+      <>
+        <div 
+          ref={setNodeRef} 
+          style={style} 
+          {...attributes} 
+          {...listeners}
+          onClick={handleToggle}
+          className={`relative flex flex-col items-center justify-between p-3 sm:p-4 rounded-3xl border transition-all cursor-pointer select-none group aspect-square ${isCompleted ? theme.bgActive : 'bg-black/20 border-white/5 hover:bg-white/5'} ${isDragging ? 'shadow-2xl scale-105 opacity-90 cursor-grabbing' : 'cursor-grab'}`}
+        >
+          <span className={`text-[10px] font-bold tracking-wide uppercase text-center line-clamp-1 leading-tight w-full px-1 transition-colors ${isCompleted ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
+            {skill.name}
+          </span>
+          
+          <div className={`text-4xl sm:text-5xl font-black transition-all flex-1 flex items-center justify-center w-full truncate ${isCompleted ? theme.giantNumber : 'text-zinc-600 group-hover:text-zinc-500'}`}>
+            {log.count}
+          </div>
+          
+          <div className="flex items-center justify-between w-full shrink-0">
+             <button 
+                onPointerDown={(e) => { e.stopPropagation(); }}
+                onClick={(e) => { e.stopPropagation(); if (log.count > 0) onUpdateLog(skill.id, dateToYMD(date), { count: log.count - 1 }); triggerHaptic('light'); }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isCompleted ? 'bg-black/20 text-white hover:bg-black/40' : 'bg-white/5 text-zinc-500 hover:text-white hover:bg-white/10'}`}
+             >
+                <Minus size={16} />
+             </button>
+             <button 
+                onPointerDown={(e) => { e.stopPropagation(); }}
+                onClick={(e) => { e.stopPropagation(); onUpdateLog(skill.id, dateToYMD(date), { count: log.count + 1 }); playTick(); }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isCompleted ? 'bg-black/20 text-white hover:bg-black/40' : 'bg-white/5 text-zinc-500 hover:text-white hover:bg-white/10'}`}
+             >
+                <Plus size={16} />
+             </button>
+          </div>
+        </div>
+        <AnimatePresence>
+          {isCounterOpen && (
+            <VerticalRoller
+              value={log.count}
+              onChange={(val) => onUpdateLog(skill.id, dateToYMD(date), { count: val })}
+              onClose={() => setIsCounterOpen(false)}
+              theme={theme}
+            />
+          )}
+        </AnimatePresence>
+      </>
+    );
+  }
+
   return (
     <>
       <div 
@@ -327,32 +379,15 @@ const CompactBentoCard: React.FC<{ skill: Skill, log: SkillLog, date: Date, onUp
         {...attributes} 
         {...listeners}
         onClick={handleToggle}
-        className={`relative flex flex-col items-center justify-center p-4 rounded-3xl border transition-all cursor-pointer select-none group ${isCompleted ? theme.bgActive : 'bg-black/20 border-white/5 hover:bg-white/5'} ${isDragging ? 'shadow-2xl scale-105 opacity-90 cursor-grabbing' : 'cursor-grab'}`}
+        className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-3xl border transition-all cursor-pointer select-none group aspect-square ${isCompleted ? theme.bgActive : 'bg-black/20 border-white/5 hover:bg-white/5'} ${isDragging ? 'shadow-2xl scale-105 opacity-90 cursor-grabbing' : 'cursor-grab'}`}
       >
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 transition-all ${isCompleted ? 'bg-white/20 shadow-inner' : 'bg-white/5 group-hover:bg-white/10'}`}>
-          <Icon size={24} className={`transition-all ${isCompleted ? 'text-white scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]' : theme.iconColor}`} />
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-2 transition-all ${isCompleted ? 'bg-white/20 shadow-inner' : 'bg-white/5 group-hover:bg-white/10'}`}>
+          <Icon size={20} className={`sm:w-6 sm:h-6 transition-all ${isCompleted ? 'text-white scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]' : theme.iconColor}`} />
         </div>
-        <span className={`text-[11px] font-bold tracking-wide uppercase text-center line-clamp-2 leading-tight transition-colors ${isCompleted ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
+        <span className={`text-[10px] sm:text-[11px] font-bold tracking-wide uppercase text-center line-clamp-2 leading-tight transition-colors px-1 ${isCompleted ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
           {skill.name}
         </span>
-        
-        {skill.mode === 'counter' && isCompleted && (
-          <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white text-black font-black text-xs flex items-center justify-center shadow-lg shadow-black/50 border-2 border-zinc-900">
-            {log.count}
-          </div>
-        )}
       </div>
-
-      <AnimatePresence>
-        {isCounterOpen && (
-          <VerticalRoller
-            value={log.count}
-            onChange={(val) => onUpdateLog(skill.id, dateToYMD(date), { count: val })}
-            onClose={() => setIsCounterOpen(false)}
-            theme={theme}
-          />
-        )}
-      </AnimatePresence>
     </>
   );
 };
