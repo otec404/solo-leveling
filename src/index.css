@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+  --color-app-accent: rgb(var(--app-accent-rgb, 6 182 212));
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -8,8 +12,7 @@
   scrollbar-width: none;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { 
   -webkit-appearance: none; 
   margin: 0; 
 }

@@ -275,7 +275,8 @@ export default function QuickLogSheet({
                               <div className="flex items-center bg-black/40 rounded-full p-1 border border-white/5">
                                 <button 
                                   tabIndex={-1}
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     if (log.count > 0) {
                                       triggerHaptic('light');
                                       onUpdateLog(skill.id, currentDateStr, { count: log.count - 1 });
@@ -290,7 +291,8 @@ export default function QuickLogSheet({
                                 </span>
                                 <button 
                                   tabIndex={-1}
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     triggerHaptic('light');
                                     playTick();
                                     onUpdateLog(skill.id, currentDateStr, { count: log.count + 1 });
@@ -303,7 +305,8 @@ export default function QuickLogSheet({
                             ) : (
                               <button
                                 tabIndex={-1}
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   triggerHaptic('success');
                                   if (!log.checked) playTick();
                                   onUpdateLog(skill.id, currentDateStr, { checked: !log.checked });

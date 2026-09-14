@@ -7,10 +7,15 @@ import ManageSkillsView from './ManageSkillsView';
 import DailyDashboardView from './DailyDashboardView';
 import ExportModal from './ExportModal';
 import ImportModal from './ImportModal';
+import LegacyImportWizard from './LegacyImportWizard';
+
 import StatsView from './StatsView';
 import { BarChart2, Search, Filter, Download, Upload } from 'lucide-react';
 import { useDataStore } from '../hooks/useDataStore';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
+import { useDynamicAccent } from '../hooks/useDynamicAccent';
+import { useMilestoneCelebration } from '../hooks/useMilestoneCelebration';
+import CelebrationOverlay from './CelebrationOverlay';
 
 interface DashboardProps {
   userId: string;
@@ -22,6 +27,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
   const [activeView, setActiveView] = useState<'dashboard' | 'stats' | 'manage'>('dashboard');
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isLegacyImportOpen, setIsLegacyImportOpen] = useState(false);
   const [lastBackupInfo, setLastBackupInfo] = useState<{date: string, size: number} | null>(() => {
     try {
       const stored = localStorage.getItem('focusflow_last_backup');
@@ -41,9 +47,14 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
     skills, setSkills,
     logs, setLogs,
     categories, setCategories,
-    categoryColors, setCategoryColors
+    categoryColors, setCategoryColors,
+    metrics, setMetrics,
+    metricLogs, setMetricLogs
   } = useDataStore();
   
+  useDynamicAccent(logs, skills, categoryColors);
+  const { activeCelebration, clearCelebration } = useMilestoneCelebration(logs, skills);
+
   // Seed some initial logs to match the prompt's example
   const todayStr = (() => {
     const today = new Date();
@@ -132,31 +143,90 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
   };
 
   const handleImportClick = () => {
-    fileInputRef.current?.click();
+    setIsImportModalOpen(true);
   };
 
-  const handleImportData = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  
+  const handleLegacyImport = (data: any, strategy: string) => {
+     if (strategy === 'merge') {
+       if (data.skills?.length > 0) {
+         setSkills(prev => {
+            const map = new Map(prev.map(s => [s.name + s.category, s]));
+            data.skills.forEach(s => {
+               if (!map.has(s.name + s.category)) map.set(s.name + s.category, s);
+            });
+            return Array.from(map.values());
+         });
+       }
+       if (data.logs?.length > 0) {
+         setLogs(prev => {
+            const map = new Map(prev.map(l => [l.skillId + "_" + l.date, l]));
+            data.logs.forEach(l => {
+               map.set(l.skillId + "_" + l.date, l);
+            });
+            return Array.from(map.values());
+         });
+       }
+       if (data.metrics?.length > 0) {
+         setMetrics(prev => {
+            const map = new Map((prev || []).map(m => [m.id, m]));
+            data.metrics.forEach(m => map.set(m.id, m));
+            return Array.from(map.values());
+         });
+       }
+       if (data.metricLogs?.length > 0) {
+         setMetricLogs(prev => {
+            const map = new Map((prev || []).map(l => [l.metricId + "_" + l.date, l]));
+            data.metricLogs.forEach(l => map.set(l.metricId + "_" + l.date, l));
+            return Array.from(map.values());
+         });
+       }
+     }
+  };
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const parsed = JSON.parse(event.target?.result as string);
-        if (parsed.skills && Array.isArray(parsed.skills)) {
-          setSkills(parsed.skills);
-        }
-        if (parsed.logs && Array.isArray(parsed.logs)) {
-          setLogs(parsed.logs);
-        }
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      } catch (err) {
-        console.error("Failed to parse import data", err);
-      }
-    };
-    reader.readAsText(file);
+  const handleImportProcess = (data: any, strategy: 'replace' | 'merge') => {
+    if (strategy === 'replace') {
+       setSkills(data.skills || []);
+       setLogs(data.logs || []);
+       if (data.categories) setCategories(data.categories);
+       if (data.categoryColors) setCategoryColors(data.categoryColors);
+    } else {
+       const newSkills = [...skills];
+       let modifiedSkills = false;
+       for (const s of (data.skills || [])) {
+         if (!newSkills.find(existing => existing.id === s.id)) {
+            newSkills.push(s);
+            modifiedSkills = true;
+         }
+       }
+       if (modifiedSkills) setSkills(newSkills);
+
+       const newLogs = [...logs];
+       let modifiedLogs = false;
+       for (const l of (data.logs || [])) {
+         const existingIndex = newLogs.findIndex(ex => ex.skillId === l.skillId && ex.date === l.date);
+         if (existingIndex >= 0) {
+            newLogs[existingIndex] = l;
+            modifiedLogs = true;
+         } else {
+            newLogs.push(l);
+            modifiedLogs = true;
+         }
+       }
+       if (modifiedLogs) setLogs(newLogs);
+       
+       if (data.categories) {
+          const newCats = [...categories];
+          let modCats = false;
+          for (const c of data.categories) {
+             if (!newCats.includes(c)) { newCats.push(c); modCats = true; }
+          }
+          if (modCats) setCategories(newCats);
+       }
+       if (data.categoryColors) {
+          setCategoryColors({ ...categoryColors, ...data.categoryColors });
+       }
+    }
   };
 
   const handleExportData = () => { setIsExportModalOpen(true); };
@@ -222,7 +292,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-black text-zinc-100">
         <div className="text-zinc-500 flex flex-col items-center gap-4">
-          <Activity className="w-8 h-8 text-cyan-500 animate-pulse" />
+          <Activity className="w-8 h-8 text-app-accent animate-pulse" />
           <p className="text-sm uppercase tracking-widest font-bold">Loading Data...</p>
         </div>
       </div>
@@ -242,8 +312,8 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
       <aside className="hidden md:flex w-64 border-r border-zinc-800/60 bg-zinc-950 flex-col flex-shrink-0">
         <div className="p-6 border-b border-zinc-800/60 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-cyan-500/10 rounded-xl border border-cyan-500/20 shadow-inner">
-              <Activity className="w-5 h-5 text-cyan-400" />
+            <div className="p-2 bg-app-accent/10 rounded-xl border border-app-accent/20 shadow-inner">
+              <Activity className="w-5 h-5 text-app-accent" />
             </div>
             <h2 className="font-semibold tracking-tight text-lg text-white">FocusFlow</h2>
           </div>
@@ -296,14 +366,14 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
           <div className="px-4 py-3 mb-3 flex items-center justify-between">
             <div>
               <p className="text-xs text-zinc-500 font-medium uppercase tracking-widest">Logged in as</p>
-              <p className="text-sm text-cyan-400 font-semibold truncate mt-1">Operative {userId}</p>
+              <p className="text-sm text-app-accent font-semibold truncate mt-1">Operative {userId}</p>
             </div>
           </div>
           <button
             onClick={handleExportData}
             className="w-full flex items-center gap-3 px-4 py-3 mb-2 text-sm font-medium text-zinc-300 hover:text-white bg-zinc-900 hover:bg-zinc-800 rounded-xl transition-colors border border-zinc-800/80 hover:border-zinc-700 shadow-sm"
           >
-            <Download className="w-5 h-5 text-cyan-400" /> Download Report
+            <Download className="w-5 h-5 text-app-accent" /> Download Report
           </button>
           <button
             onClick={handleImportClick}
@@ -335,8 +405,8 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
       {/* Mobile Top Bar */}
       <header className="md:hidden flex items-center justify-between p-4 border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-xl flex-shrink-0 z-40 sticky top-0">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-cyan-500/10 rounded-lg border border-cyan-500/20 shadow-inner">
-            <Activity className="w-4 h-4 text-cyan-400" />
+          <div className="p-1.5 bg-app-accent/10 rounded-lg border border-app-accent/20 shadow-inner">
+            <Activity className="w-4 h-4 text-app-accent" />
           </div>
           <h2 className="font-semibold tracking-tight text-white">FocusFlow</h2>
         </div>
@@ -352,11 +422,11 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
             onClick={handleExportData} 
             className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold tracking-wide uppercase text-zinc-300 hover:text-white bg-zinc-900 active:bg-zinc-800 rounded-lg transition-colors border border-zinc-800/80"
           >
-            <Download size={14} className="text-cyan-400" /> 
+            <Download size={14} className="text-app-accent" /> 
             <span>Report</span>
           </button>
           <div className="text-xs text-zinc-500 font-medium">
-            <span className="text-cyan-400">{userId}</span>
+            <span className="text-app-accent">{userId}</span>
           </div>
         </div>
       </header>
@@ -374,7 +444,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
               placeholder="Search skills by name or symbol..." 
               value={globalSearch}
               onChange={e => setGlobalSearch(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 sm:py-3.5 bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-2xl text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 shadow-inner transition-all hover:bg-zinc-800/50 text-sm sm:text-base font-medium"
+              className="w-full pl-12 pr-4 py-3 sm:py-3.5 bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-2xl text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-app-accent/50 shadow-inner transition-all hover:bg-zinc-800/50 text-sm sm:text-base font-medium"
             />
           </div>
           <div className="relative w-full sm:w-64 flex-shrink-0">
@@ -422,12 +492,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
               transition={{ duration: 0.2 }}
               className="absolute inset-0 h-full"
             >
-              <StatsView 
-                 skills={filteredSkills} 
-                 logs={logs} 
-                 
-                 categoryColors={categoryColors}
-              />
+              <StatsView skills={filteredSkills} logs={logs} categoryColors={categoryColors} userId={userId} />
             </motion.div>
           )}
           
@@ -461,7 +526,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
         <button
           onClick={() => setActiveView('dashboard')}
           className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all ${
-            activeView === 'dashboard' ? 'text-cyan-400' : 'text-zinc-500 hover:text-zinc-300'
+            activeView === 'dashboard' ? 'text-app-accent' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
           <LayoutDashboard className="w-5 h-5" />
@@ -470,7 +535,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
         <button
           onClick={() => setActiveView('stats')}
           className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all ${
-            activeView === 'stats' ? 'text-cyan-400' : 'text-zinc-500 hover:text-zinc-300'
+            activeView === 'stats' ? 'text-app-accent' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
           <BarChart2 className="w-5 h-5" />
@@ -479,7 +544,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
         <button
           onClick={() => setActiveView('manage')}
           className={`flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all ${
-            activeView === 'manage' ? 'text-cyan-400' : 'text-zinc-500 hover:text-zinc-300'
+            activeView === 'manage' ? 'text-app-accent' : 'text-zinc-500 hover:text-zinc-300'
           }`}
         >
           <Wrench className="w-5 h-5" />
@@ -499,7 +564,16 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
         userId={userId}
         skills={skills}
         logs={logs}
+        categories={categories}
+        categoryColors={categoryColors}
+        onExported={(size) => {
+           const info = { date: new Date().toISOString(), size };
+           setLastBackupInfo(info);
+           localStorage.setItem('focusflow_last_backup', JSON.stringify(info));
+        }}
       />
+            <LegacyImportWizard isOpen={isLegacyImportOpen} onClose={() => setIsLegacyImportOpen(false)} onImport={handleLegacyImport} existingSkills={skills} />
+      <ImportModal isOpen={isImportModalOpen} onClose={() => setIsImportModalOpen(false)} onImport={handleImportProcess} />
     </div>
   );
 }

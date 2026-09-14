@@ -8,7 +8,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Fitness",
     "icon": "Activity",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "f_c",
@@ -17,9 +17,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Fitness",
     "icon": "Activity",
-    "createdAt": 1788890669033
-  ,
-  "unit": "km"
+    "createdAt": 1789355297401
   },
   {
     "id": "f_e",
@@ -28,9 +26,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Fitness",
     "icon": "Activity",
-    "createdAt": 1788890669033
-  ,
-  "unit": "hr"
+    "createdAt": 1789355297401
   },
   {
     "id": "f_s",
@@ -39,9 +35,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Fitness",
     "icon": "Activity",
-    "createdAt": 1788890669033
-  ,
-  "unit": "hr"
+    "createdAt": 1789355297401
   },
   {
     "id": "f_k",
@@ -50,7 +44,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Fitness",
     "icon": "Activity",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "f_g",
@@ -59,9 +53,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Fitness",
     "icon": "Activity",
-    "createdAt": 1788890669033
-  ,
-  "unit": "hr"
+    "createdAt": 1789355297401
   },
   {
     "id": "d_ph",
@@ -70,7 +62,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Diet",
     "icon": "Apple",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_4am",
@@ -79,7 +71,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Diet",
     "icon": "Activity",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_ca",
@@ -88,7 +80,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Diet",
     "icon": "Carrot",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_or",
@@ -97,7 +89,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Diet",
     "icon": "Apple",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_apl",
@@ -106,7 +98,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Diet",
     "icon": "Apple",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_gu",
@@ -115,7 +107,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Diet",
     "icon": "Apple",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_ban",
@@ -124,7 +116,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Diet",
     "icon": "Apple",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_pomo",
@@ -133,7 +125,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Diet",
     "icon": "Apple",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_am",
@@ -142,7 +134,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Diet",
     "icon": "Apple",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_kp",
@@ -151,9 +143,7 @@ export const initialSkills: Skill[] = [
     "mode": "counter",
     "category": "Diet",
     "icon": "Activity",
-    "createdAt": 1788890669033
-  ,
-  "unit": "k steps"
+    "createdAt": 1789355297401
   },
   {
     "id": "d_mop",
@@ -162,7 +152,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Diet",
     "icon": "Activity",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_hvin",
@@ -171,7 +161,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Diet",
     "icon": "Activity",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_spf",
@@ -180,7 +170,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Diet",
     "icon": "Activity",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "d_lt",
@@ -189,7 +179,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Diet",
     "icon": "Activity",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "b_cd",
@@ -198,7 +188,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Black",
     "icon": "Ghost",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "b_nsr",
@@ -207,7 +197,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Black",
     "icon": "Ghost",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "b_npr",
@@ -216,7 +206,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Black",
     "icon": "Ghost",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   },
   {
     "id": "b_hd",
@@ -225,7 +215,7 @@ export const initialSkills: Skill[] = [
     "mode": "checkbox",
     "category": "Black",
     "icon": "Ghost",
-    "createdAt": 1788890669033
+    "createdAt": 1789355297401
   }
 ];
 export const initialLogs: SkillLog[] = [

@@ -17,3 +17,17 @@ export interface SkillLog {
   count: number;
   checked: boolean;
 }
+
+export interface Metric {
+  id: string;
+  name: string;
+  unit: string;
+  category: string;
+  createdAt: number;
+}
+
+export interface MetricLog {
+  metricId: string;
+  date: string; // YYYY-MM-DD
+  value: number;
+}

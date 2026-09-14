@@ -1,6 +1,7 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { set, del, get, entries } from 'idb-keyval';
-import { Skill, SkillLog } from '../types';
+import { Skill, SkillLog, Metric, MetricLog } from '../types';
 import { initialSkills, initialLogs } from '../data/historicalData';
 
 export function useDataStore() {
@@ -8,6 +9,8 @@ export function useDataStore() {
   
   const [skills, setSkillsState] = useState<Skill[]>(initialSkills);
   const [logs, setLogsState] = useState<SkillLog[]>(initialLogs);
+  const [metrics, setMetricsState] = useState<Metric[]>([]);
+  const [metricLogs, setMetricLogsState] = useState<MetricLog[]>([]);
   const [categories, setCategoriesState] = useState<string[]>(['Diet', 'Fitness', 'Black']);
   const [categoryColors, setCategoryColorsState] = useState<Record<string, string>>({
     'Diet': 'rose',
@@ -18,7 +21,7 @@ export function useDataStore() {
   useEffect(() => {
     async function loadAndMigrate() {
       try {
-        const migrated = await get('migrated_to_idb_v1');
+        const migrated = await get('migrated_to_idb_v2');
         
         if (!migrated) {
           const lsSkills = JSON.parse(localStorage.getItem('focusflow_skills') || 'null');
@@ -31,15 +34,61 @@ export function useDataStore() {
             await set('skill_order', lsSkills.map(s => s.id));
           }
           if (lsLogs) {
-            for (const log of lsLogs) await set(`log_${log.id}`, log);
+            for (const log of lsLogs) await set(`log_${log.skillId}_${log.date}`, log);
           }
           if (lsCategories) await set('categories', lsCategories);
           if (lsColors) await set('categoryColors', lsColors);
 
-          await set('migrated_to_idb_v1', true);
+          await set('migrated_to_idb_v2', true);
+        }
+
+
+        
+
+        let loadedMetrics = [];
+        let loadedMetricLogs = [];
+
+        const legacyImported = await get('legacy_data_imported_v5');
+        if (!legacyImported) {
+          // Add them to IDB
+          for (const skill of initialSkills) {
+            await set(`skill_${skill.id}`, skill);
+          }
+          for (const log of initialLogs) {
+             await set(`log_${log.skillId}_${log.date}`, log);
+          }
+          
+          // Seed the weight metric
+          const weightMetric = {
+            id: 'legacy_metric_weight',
+            name: 'Weight',
+            category: 'Fitness',
+            unit: 'kg',
+            createdAt: Date.now()
+          };
+          await set(`metric_legacy_metric_weight`, weightMetric);
+          loadedMetrics = loadedMetrics || [];
+          loadedMetrics.push(weightMetric);
+          
+          const weightLogs = [
+            { metricId: 'legacy_metric_weight', date: '2025-06-09', value: 100.11 },
+            { metricId: 'legacy_metric_weight', date: '2025-06-22', value: 97.5 },
+            { metricId: 'legacy_metric_weight', date: '2025-08-03', value: 93.5 },
+            { metricId: 'legacy_metric_weight', date: '2025-08-23', value: 90.7 }
+          ];
+          for (const ml of weightLogs) {
+             await set(`metriclog_${ml.metricId}_${ml.date}`, ml);
+          }
+          loadedMetricLogs = loadedMetricLogs || [];
+          loadedMetricLogs.push(...weightLogs);
+
+          await set('legacy_data_imported_v5', true);
         }
 
         const allEntries = await entries();
+
+        
+
         const loadedSkills: Skill[] = [];
         const loadedLogs: SkillLog[] = [];
         let loadedCategories: string[] | null = null;
@@ -56,6 +105,14 @@ export function useDataStore() {
             } else if (key.startsWith('skill_')) {
               loadedSkills.push(value as Skill);
               hasAnyData = true;
+
+            } else if (key.startsWith('metric_')) {
+              loadedMetrics.push(value);
+              hasAnyData = true;
+            } else if (key.startsWith('metriclog_')) {
+              loadedMetricLogs.push(value);
+              hasAnyData = true;
+
             } else if (key.startsWith('log_')) {
               loadedLogs.push(value as SkillLog);
               hasAnyData = true;
@@ -68,6 +125,16 @@ export function useDataStore() {
             }
           }
         }
+
+        
+        // Deduplicate
+        const uniqueSkills = new Map(loadedSkills.map(s => [s.id, s]));
+        loadedSkills.length = 0;
+        loadedSkills.push(...uniqueSkills.values());
+        
+        const uniqueLogs = new Map(loadedLogs.map(l => [l.skillId + "_" + l.date, l]));
+        loadedLogs.length = 0;
+        loadedLogs.push(...uniqueLogs.values());
 
         if (hasAnyData) {
            if (loadedSkillOrder) {
@@ -83,19 +150,23 @@ export function useDataStore() {
            }
            setSkillsState(loadedSkills);
            setLogsState(loadedLogs);
+
+            setMetricsState(loadedMetrics);
+            setMetricLogsState(loadedMetricLogs);
+
            if (loadedCategories) setCategoriesState(loadedCategories);
            if (loadedColors) setCategoryColorsState(loadedColors);
         } else {
            for (const skill of initialSkills) await set(`skill_${skill.id}`, skill);
            await set('skill_order', initialSkills.map(s => s.id));
-           for (const log of initialLogs) await set(`log_${log.id}`, log);
+           for (const log of initialLogs) await set(`log_${log.skillId}_${log.date}`, log);
            await set('categories', ['Diet', 'Fitness', 'Black']);
            await set('categoryColors', {
              'Diet': 'rose',
              'Fitness': 'emerald',
              'Black': 'zinc'
            });
-           await set('migrated_to_idb_v1', true);
+           await set('migrated_to_idb_v2', true);
         }
       } catch (err) {
         console.error("Migration/Loading error:", err);
@@ -141,14 +212,14 @@ export function useDataStore() {
   const setLogs = (newValAction: React.SetStateAction<SkillLog[]>) => {
     setLogsState(prev => {
       const newVal = typeof newValAction === 'function' ? newValAction(prev) : newValAction;
-      const prevMap = new Map(prev.map(s => [s.id, s]));
-      const newMap = new Map(newVal.map(s => [s.id, s]));
+      const prevMap = new Map(prev.map(s => [s.skillId + "_" + s.date, s]));
+      const newMap = new Map(newVal.map(s => [s.skillId + "_" + s.date, s]));
 
       newVal.forEach(item => {
-        if (prevMap.get(item.id) !== item) set(`log_${item.id}`, item).catch(console.error);
+        if (prevMap.get(item.id) !== item) set(`log_${item.skillId}_${item.date}`, item).catch(console.error);
       });
       prev.forEach(item => {
-        if (!newMap.has(item.id)) del(`log_${item.id}`).catch(console.error);
+        if (!newMap.has(item.id)) del(`log_${item.skillId}_${item.date}`).catch(console.error);
       });
       return newVal;
     });
@@ -175,6 +246,8 @@ export function useDataStore() {
     skills, setSkills,
     logs, setLogs,
     categories, setCategories,
-    categoryColors, setCategoryColors
+    categoryColors, setCategoryColors,
+    metrics, setMetrics: setMetricsState,
+    metricLogs, setMetricLogs: setMetricLogsState
   };
 }
