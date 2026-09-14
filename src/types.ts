@@ -6,6 +6,8 @@ export interface Skill {
   shortForm: string;
   mode: TrackingMode;
   category: string;
+  icon?: string;
+  unit?: string;
   createdAt: number;
 }
 

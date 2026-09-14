@@ -1,0 +1,255 @@
+2 0 2 5
+     PROJECT - K
+           Diet
+14/11/25--Al,Sp,Ca,Am
+23/11/25--Powerhouse
+24/11/25--Ph
+25/11/25--Ph, 4am, 1ca
+26/11/25--Ph, 4am, 1ca
+27/11/25--Ph, 4am, 1ca
+28/11/25--Ph, 4am, 1ca
+29/11/25--Ph, 4am, 1ca, Hvin
+30/11/25--Ph, 4am, 1ca
+1/12/25----Ph, 4am, 1ca
+2/12/25----Ph, 4am, 1ca
+3/12/25----Ph, 4am, 1ca 
+4/12/25----Ph, 4am, 1ca
+5/12/25----Ph, 4am, 1ca, Hvin
+6/12/25----Ph, 4am, 1ca, 1or, 1apl, 1cus
+7/12/25----Ph, 4am, 1ca
+8/12/25----Ph, 4am, 1ca
+9/12/25----Ph
+10/12/25--Ph, 4am, 1ca, 1or, 1cus, Hvin
+11/12/25--Ph, 4am, 1ca
+12/12/25--Ph, 4am, 1ca
+13/12/25--Ph, 4am, 1ca
+14/12/25--Ph, 4am, 1ca, Hvin
+15/12/25--Ph, 4am, 1ca
+16/12/25--Ph, 4am, 1ca
+17/12/25--Ph, 4am, 1ca, MM
+18/12/25--Ph, 4am, 1ca
+19/12/25--Ph, 4am, 1ca, SpRw
+20/12/25--Ph, 4am, 1ca
+21/12/25--Ph, 4am, 1ca
+22/12/25-Ph, 4am, 1ca, Sp+RW
+23/12/25-Ph, 4am, 1ca, MM+RW
+24/12/25-Ph, 4am, 1ca
+25/12/25-Ph, 4am, 1ca
+26/12/25-Ph, 4am, 1ca, Hvin
+27/12/25-Ph, 4am, 1ca
+28/12/25-Ph, 4am, 1ca, MM+RW
+29/12/25-Ph, 4am, 1ca 
+30/12/25-Ph, 4am, 1ca, 10kp, Hvin
+31/12/25-Ph, 4am, 1ca, 10kp, Mop
+
+2 0 2 6
+Let's go 
+
+[  ] 1/1/26 - Ph, 4am, 1ca, 10kp, Mop
+[  ] 2/1/26 - Ph, 4am, 1ca, 10kp, Mop
+[  ] 3/1/26 - Ph, 4am, 1ca, 10kp, Mop, Hvin, Pomo
+[  ] 4/1/26 - Ph, 4am, 1ca, 10kp, Mop
+[  ] 5/1/26 - Ph, 4am, 1ca, 10kp, Mop
+[  ] 6/1/26 - Ph, 4am, 1ca, 10kp, Mop
+[  ] 7/1/26 - Ph, 4am, 1ca, 10kp, Mop
+[  ] 8/1/26 - Ph, 4am, 1ca, 10kp, Mop
+[  ] 9/1/26 - Ph, 4am, 1ca, 10kp, Mop
+[  ] 10/1/26-Ph, 4am, 1ca, 10kp, Mop+Hvin
+[  ] 11/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 12/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 13/1/26-Ph, 4am, 1ca, 10kp, Mop, SpF
+[  ] 14/1/26-Ph, 4am, 1ca, 10kp, Mop, Hvin
+[  ] 15/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 16/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 17/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 18/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 19/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 20/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 21/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 22/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 23/1/26-Ph, 4am, 1ca, 10kp, Mop
+[  ] 24/1/26-Ph, 6am, 1ca, 10kp, Mop
+
+[  ] 25/1/26- n o  a m l a.  S u n  A R C                           Ph, no am, 1ca, 10kp,Mop,                                                                       Hivn 
+[  ] 26/1/26- Ph, 4am, 10kp, Mop, 1ca
+[  ] 27/1/26- Ph, 4am, 10kp, Mop, 1ca
+[  ] 28/1/26- Ph, 4am, 10kp, Mop, 1ca, Hvin
+[  ] 29/1/26- Ph, 4am, 10kp, Mop, 1ca
+[  ] 30/1/26- Ph, 4am, 10kp, Mop, 1ca
+[  ] 31/1/26- Ph, 4am, 10kp, Mop, 1ca
+[  ] 1/2/26  - Ph, 4am, 10kp, Mop, 1ca, Hvin                          1apl, 1org, 2ban
+[  ] 2/2/26 - Ph, 4am, 10kp, Mop, 1ca,                                   1apl, 1org, 2ban
+[  ] 3/2/26 - Ph, 4am, 10kp, Mop, 1ca,                                   1apl, 1org, 2ban
+[  ] 4/2/26 - Ph, 4am, 10kp, Mop, 1ca,                                   1apl, 1org, 2ban
+[  ] 5/2/26 - Ph, 4am, 10kp, Mop, 1ca,                                   1apl, 1org, Hvin
+[  ] 6/2/26 - Ph, 4am, 10kp, Mop, 1ca,                                          1apl, 1org
+[  ] 7/2/26 - Ph, 4am, 10kp, Mop, 1ca,                               1apl, 1org, 1ban,1guv
+[  ] 8/2/26 - Ph, 4am,10kp, Mop, 1ca, 1apl,                             1org, 1guv                     
+[  ] 9/2/26 - Ph, 4am,10kp, Mop, 1ca, 1org,
+[  ] 10/2/26 - Ph, 4am,10kp, Mop, 1ca,                            1guv      
+[  ] 11/2/26 - Ph, 4am, 10kp, 1ca, 1Pomo,                       1apl, 1or
+[  ] 12/2/26 - Ph
+[  ] 13/2/26 - Ph, 4am, 1ca, 10kp
+[  ] 14/2/26 - Ph
+[  ] 15/2/26 - Ph
+[  ] 16/2/26 - Ph
+[  ] 17/2/26 - Ph
+[  ] 18/2/26 - Ph
+[  ] 19/2/26 - Ph
+[  ] 20/2/26 - Ph
+[  ] 21/2/26 - Ph, Hvin
+[  ] 22/2/26 - Ph 
+[  ] 23/2/26 - Ph, Spf
+[  ] 24/2/26 - Ph, Spf
+[  ] 25/2/26 - Ph
+[  ] 26/2/26 - Ph
+[  ] 27/2/26 - Ph, Hvin
+[  ] 28/2/26 - Ph, 10Gp, 2Gu, 
+[  ] 1/3/26 - - Ph, 4am, 1or, 1ca, 1Gu, Hvin
+[  ] 2/3/26 - - Ph,1Gu, 1apl, 4am,1or
+[  ] 3/3/26---- Ph
+[  ] 4/3/26---- Ph, 1Gu, 1apl, 4am, 1or, 1ca,                      Hvin 
+[  ] 5/3/26--- Ph, 1Gu, 1apl, 4am, 1or, 2ca
+[  ] 6/3/26--- Ph, 1Pomo, 1apl, 1or,  2ca,                        4am, Spf 
+[  ] 7/3/26--- Ph, 1Pomo, 1apl, 1or, 2ca, 4am, Hvin
+[  ] 8/3/26 -  Ph, 1Pomo, 1apl, 1or, 2Ca,                        4am
+[  ] 9/3/26 -   Ph
+[  ] 10/3/26-  Ph
+[  ] 11/3/26 - Ph
+[  ] 12/3/26 - Ph
+[  ] 13/3/26 - Ph, 4am, 1ca, 1or, 1Pomo,
+Cut  to
+
+1/4/26 - Ph
+2/4/26 - Ph
+
+Glitch
+
+12/4/26 - Start again 
+13/4/26 - Ph
+14/4/26 - Fish
+15/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+16/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+17/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+18/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+19/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+20/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+21/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+22/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+23/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+24/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+25/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+26/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+27/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+28/4/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, LT
+29/4/26 - Ph, Lt
+30/4/26 - Ph, Lt
+1/5/26 - - Ph, Lt
+2/5/26 - - Ph, Lt
+3/5/26 - - Ph, Lt
+3/5/26 - - Ph, Lt
+4/5/26 - - Ph, Lt
+5/5/26 - - Ph, Lt
+6/5/26 - - Ph, Lt
+7/5/26 - - Ph, Spf, 2Ba, 1Or, 1Gu, 1apl,                            10kp, 1ca, Lt
+8/5/26 - - Ph, 1Or, 1Gu, 1apl, 10kp, 2Ca, Lt
+9/5/26 - - Ph, Hvin, 1Or, 1Gu, 1apl, 10kp,                         3Ca, Lt
+10/5/26 - Ph, 1Or, 1Gu, 1apl, 10kp, 2Ca, Lt
+11/5/26 - Ph, 1Or, 1Gu, 1apl, 10kp, 2Ca, Lt
+12/5/26 - Ph, 1Or, 1Gu, 1apl, 10kp, 2Ca, Lt
+13/5/26 - Ph
+14/5/26 - Ph
+15/5/26 - Ph
+16/5/26 - Ph
+17/5/26 - Ph
+18/5/26 - Ph,1Or, 1Gu, 1apl, 10kp, 1Ca, 
+19/5/26 - Ph
+20/5/26 - Ph
+21/5/26 - Ph
+22/5/26 - Ph, 1Or, 1Gu, 1apl, 10kp, Lt
+23/5/26 - Ph, 1Or
+24/5/26 - Ph
+25/5/26 - Ph
+26/5/26 - Ph
+26/5/26 - Ph
+27/5/26 - Ph
+28/5/26 - Ph
+29/5/26 - Ph
+30/5/26 - Ph
+31/5/26 - Ph
+1/6/26 - - Ph
+2/6/26 - - Ph
+3/6/26 - - Ph
+4/6/26 - - Ph
+5/6/26 - - Ph
+6/6/26 - - Ph
+7/6/26 - - Ph
+8/6/26 - - Ph
+9/6/26 - - Ph
+10/6/26 - Ph
+11/6/26 - Ph
+12/6/26 - Ph
+13/6/26 - Ph
+14/6/26 - Ph
+15/6/26 - Ph
+16/6/26 - Ph, Hvin
+17/6/26 - Ph, Spf
+18/6/26 - Ph, Hvin
+19/6/26 - Ph, Spf
+20/6/26 - Ph, Hvin
+21/6/26 - Ph, Spf
+22/6/2026 - Ph, Hvin
+23/6/2026 - Ph, Spf
+
+ S k i p
+
+1/7/2026 - Ph, 2eggs, <150g> p r o t e i n
+2/7/2026 - Ph, 2eggs
+3/7/2026 - Ph
+4/7/2026 - Ph
+5/7/2026 - Ph
+6/7/2026 - Ph
+7/7/2026 - Ph
+8/7/2026 - Ph
+9/7/2026 - Ph
+10/7/2026 - Ph
+11/7/26 - Ph
+12/7/26 - Ph
+13/7/26 - Ph
+14/7/26 - Ph
+15/7/26 - Ph 
+16/7/26 - Ph
+17/7/26 - Ph
+18/7/26 - Ph
+19/7/26 - Ph
+20/7/26 -  Ph, 2Ca, 1Or, 1Gu, 1apl, 10kp,Mop
+21/7/26 -  Ph, 2Ca, 1Or, 1Gu, 1apl, 10kp,Mop
+22/7/26 - Ph, 3Ca, 1Or, 1Gu, 1apl, 10kp,Mop
+23/7/26 -  Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp,Mop
+24/7/26 - Ph, 2Ca, 1Or, 1Gu, 1apl, 10kp
+
+25/7/26 - Ph, 3Ca, 1Or, 2Gu, 1apl, 10kp, Mop
+26/7/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, Lt
+27/7/26 -  Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp
+28/7/26 -  Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp
+29/7/26 -  Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp
+30/7/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp
+31/7/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp
+01/8/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, MOP, Hvin
+02/8/26 - Ph, 3Ca, 1Or, 2Gu, 1apl, 10kp,      1Pomo,Spf
+3/8/26 - Ph, 1Ca, 1Or, 1Gu, 1apl, 10kp, Lt, Hvin
+4/8/26 - Ph, 1Ca, 1Or, 1Gu, 10kp, 1Pomo
+5/8/26 - Ph, 1CA, 1Or, 1Gu, 10kp, 1Pomo, 1apl, 1ban
+6/8/26 - Ph, 1Ca, 1Or, 1Gu, 10kp, 1Pomo, 1apl
+7/8/26 - Ph, 1Or, 2Gu, 1Drg, 10kp, 1apl, 1Pomo
+8/8/26 - Ph
+9/8/26 - Ph
+10/8/26 - Ph
+11/8/26 - Ph
+12/8/2026 - Ph
+13/8/2026 - Ph
+14/8/2026 - Ph, 2Ban
+15/8/2026 - 1kp
+16/8/2026 - 1kp
+17/8/2026 - 1kp.
+18/8/2026 - 1kp
