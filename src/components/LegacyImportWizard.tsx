@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, CheckCircle2, AlertTriangle, FileJson, ArrowRight, ChevronRight, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Skill, SkillLog } from '../types';
@@ -43,21 +44,27 @@ export default function LegacyImportWizard({ isOpen, onClose, onImport, existing
     setStep(3);
   };
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto"
-        >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-4xl w-full shadow-2xl relative my-8"
-          >
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div 
+      onPointerDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-2xl overflow-y-auto"
+    >
+      <div 
+        className="absolute inset-0" 
+        onClick={(e) => { e.stopPropagation(); resetAndClose(); }} 
+      />
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+        transition={{ duration: 0.18 }}
+        className="bg-zinc-950 border border-white/20 rounded-3xl p-5 sm:p-8 max-w-4xl w-full shadow-2xl relative my-8 z-10 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
             <button
               onClick={resetAndClose}
               className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-white bg-zinc-900/50 hover:bg-zinc-800 rounded-full transition-colors"
@@ -198,8 +205,7 @@ export default function LegacyImportWizard({ isOpen, onClose, onImport, existing
               </div>
             )}
           </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+        </div>,
+        document.body
+      );
 }

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { set, del, get, entries } from 'idb-keyval';
 import { Skill, SkillLog, Metric, MetricLog } from '../types';
 import { initialSkills, initialLogs } from '../data/historicalData';
+import { getRespectiveIconName } from '../components/icons';
 
 export function useDataStore() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -131,6 +132,25 @@ export function useDataStore() {
         const uniqueSkills = new Map(loadedSkills.map(s => [s.id, s]));
         loadedSkills.length = 0;
         loadedSkills.push(...uniqueSkills.values());
+
+        // Ensure every skill has its proper respective UI icon
+        for (const skill of loadedSkills) {
+          const respectiveIcon = getRespectiveIconName(skill);
+          // If the skill has no icon, a generic placeholder icon, or the default mapping was upgraded:
+          if (
+            !skill.icon ||
+            skill.icon === 'Activity' ||
+            skill.icon === 'Ghost' ||
+            skill.icon === 'Target' ||
+            (skill.icon === 'Leaf' && skill.name.toLowerCase().includes('guava')) ||
+            (skill.icon === 'Droplet' && skill.name.toLowerCase().includes('hvin')) ||
+            (skill.icon === 'Shield' && skill.name.toLowerCase().includes('npr')) ||
+            (skill.icon === 'Apple' && !skill.name.toLowerCase().includes('apple'))
+          ) {
+            skill.icon = respectiveIcon;
+            set(`skill_${skill.id}`, skill).catch(console.error);
+          }
+        }
         
         const uniqueLogs = new Map(loadedLogs.map(l => [l.skillId + "_" + l.date, l]));
         loadedLogs.length = 0;

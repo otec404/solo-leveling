@@ -3,7 +3,7 @@ import { motion, AnimatePresence, PanInfo } from 'motion/react';
 import { X, CalendarDays, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Skill, SkillLog } from '../types';
 import { getCategoryTheme } from './DailyDashboardView';
-import { AVAILABLE_ICONS } from './icons';
+import { AVAILABLE_ICONS, getSkillIcon } from './icons';
 
 interface HistorySidebarProps {
   isOpen: boolean;
@@ -84,7 +84,7 @@ export default function HistorySidebar({ isOpen, onClose, skills, logs, categori
     const catsLogged = new Set<string>();
     skills.forEach(skill => {
       const log = logs.find(l => l.skillId === skill.id && l.date === dateStr);
-      if (log && (log.count > 0 || log.checked)) {
+      if (log && (log.count > 0 || log.checked || (log.value !== undefined && log.value > 0))) {
         catsLogged.add(skill.category);
       }
     });
@@ -97,7 +97,7 @@ export default function HistorySidebar({ isOpen, onClose, skills, logs, categori
       const catSkills = skills.filter(s => s.category === cat);
       const activeLogs = catSkills.map(skill => {
         const log = logs.find(l => l.skillId === skill.id && l.date === selectedDate);
-        if (log && (log.count > 0 || log.checked)) return { skill, log };
+        if (log && (log.count > 0 || log.checked || (log.value !== undefined && log.value > 0))) return { skill, log };
         return null;
       }).filter(Boolean) as { skill: Skill, log: SkillLog }[];
       
@@ -136,15 +136,23 @@ export default function HistorySidebar({ isOpen, onClose, skills, logs, categori
                       <div className="flex items-center gap-3">
                         <div className={`w-1.5 h-1.5 rounded-full ${getDotClass(theme.name)} shadow-sm`} />
                         <span className="text-zinc-200 font-medium text-sm sm:text-base flex items-center gap-2">
-                          {skill.icon && AVAILABLE_ICONS[skill.icon] ? (() => {
-                             const IconComp = AVAILABLE_ICONS[skill.icon];
+                          {(() => {
+                             const IconComp = getSkillIcon(skill);
                              return <IconComp size={16} className={theme.textCategory} />;
-                          })() : null}
+                          })()}
                           {skill.name}
                         </span>
                       </div>
                       <div className="text-white font-semibold text-base">
-                        {skill.mode === 'counter' ? (skill.unit ? `${log.count} ${skill.unit}` : log.count) : <Check className="w-5 h-5 text-zinc-400" strokeWidth={3} />}
+                        {skill.mode === 'counter' ? (
+                          skill.unit ? `${log.count} ${skill.unit}` : log.count
+                        ) : skill.mode === 'measurement' ? (
+                          `${log.value !== undefined ? log.value : log.count} ${skill.unit || ''}`
+                        ) : skill.mode === 'timer' ? (
+                          log.timerDuration ? `${Math.round(log.timerDuration / 1000)}s` : `${log.count} laps`
+                        ) : (
+                          <Check className="w-5 h-5 text-zinc-400" strokeWidth={3} />
+                        )}
                       </div>
                     </div>
                   ))}

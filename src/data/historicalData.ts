@@ -7,7 +7,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Bt",
     "mode": "counter",
     "category": "Fitness",
-    "icon": "Activity",
+    "icon": "Sailboat",
     "createdAt": 1789355297401
   },
   {
@@ -16,7 +16,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Cy",
     "mode": "counter",
     "category": "Fitness",
-    "icon": "Activity",
+    "icon": "Bike",
     "createdAt": 1789355297401
   },
   {
@@ -25,7 +25,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Ex",
     "mode": "counter",
     "category": "Fitness",
-    "icon": "Activity",
+    "icon": "BicepsFlexed",
     "createdAt": 1789355297401
   },
   {
@@ -34,7 +34,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Sh",
     "mode": "counter",
     "category": "Fitness",
-    "icon": "Activity",
+    "icon": "Trophy",
     "createdAt": 1789355297401
   },
   {
@@ -43,7 +43,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Ku",
     "mode": "counter",
     "category": "Fitness",
-    "icon": "Activity",
+    "icon": "Mountain",
     "createdAt": 1789355297401
   },
   {
@@ -52,7 +52,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Gy",
     "mode": "counter",
     "category": "Fitness",
-    "icon": "Activity",
+    "icon": "Dumbbell",
     "createdAt": 1789355297401
   },
   {
@@ -61,7 +61,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Ph",
     "mode": "checkbox",
     "category": "Diet",
-    "icon": "Apple",
+    "icon": "Zap",
     "createdAt": 1789355297401
   },
   {
@@ -70,7 +70,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "4a",
     "mode": "checkbox",
     "category": "Diet",
-    "icon": "Activity",
+    "icon": "Sunrise",
     "createdAt": 1789355297401
   },
   {
@@ -88,7 +88,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Or",
     "mode": "counter",
     "category": "Diet",
-    "icon": "Apple",
+    "icon": "Citrus",
     "createdAt": 1789355297401
   },
   {
@@ -106,7 +106,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Gu",
     "mode": "counter",
     "category": "Diet",
-    "icon": "Apple",
+    "icon": "LeafyGreen",
     "createdAt": 1789355297401
   },
   {
@@ -115,7 +115,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Ba",
     "mode": "counter",
     "category": "Diet",
-    "icon": "Apple",
+    "icon": "Banana",
     "createdAt": 1789355297401
   },
   {
@@ -124,7 +124,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Po",
     "mode": "counter",
     "category": "Diet",
-    "icon": "Apple",
+    "icon": "Cherry",
     "createdAt": 1789355297401
   },
   {
@@ -133,7 +133,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Am",
     "mode": "counter",
     "category": "Diet",
-    "icon": "Apple",
+    "icon": "Sparkles",
     "createdAt": 1789355297401
   },
   {
@@ -142,7 +142,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "KP",
     "mode": "counter",
     "category": "Diet",
-    "icon": "Activity",
+    "icon": "Footprints",
     "createdAt": 1789355297401
   },
   {
@@ -151,7 +151,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Mp",
     "mode": "checkbox",
     "category": "Diet",
-    "icon": "Activity",
+    "icon": "Brush",
     "createdAt": 1789355297401
   },
   {
@@ -160,7 +160,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Hv",
     "mode": "checkbox",
     "category": "Diet",
-    "icon": "Activity",
+    "icon": "GlassWater",
     "createdAt": 1789355297401
   },
   {
@@ -169,7 +169,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Sf",
     "mode": "checkbox",
     "category": "Diet",
-    "icon": "Activity",
+    "icon": "Sun",
     "createdAt": 1789355297401
   },
   {
@@ -178,7 +178,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Lt",
     "mode": "checkbox",
     "category": "Diet",
-    "icon": "Activity",
+    "icon": "CupSoda",
     "createdAt": 1789355297401
   },
   {
@@ -187,7 +187,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Cd",
     "mode": "checkbox",
     "category": "Black",
-    "icon": "Ghost",
+    "icon": "Salad",
     "createdAt": 1789355297401
   },
   {
@@ -196,7 +196,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "NSR",
     "mode": "checkbox",
     "category": "Black",
-    "icon": "Ghost",
+    "icon": "Ban",
     "createdAt": 1789355297401
   },
   {
@@ -205,7 +205,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "NPR",
     "mode": "checkbox",
     "category": "Black",
-    "icon": "Ghost",
+    "icon": "ShieldCheck",
     "createdAt": 1789355297401
   },
   {
@@ -214,7 +214,7 @@ export const initialSkills: Skill[] = [
     "shortForm": "Hd",
     "mode": "checkbox",
     "category": "Black",
-    "icon": "Ghost",
+    "icon": "Flame",
     "createdAt": 1789355297401
   }
 ];

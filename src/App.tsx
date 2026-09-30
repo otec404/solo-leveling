@@ -5,7 +5,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Lock, User, ShieldCheck, ChevronRight, LogOut } from 'lucide-react';
+import { Lock, User, ShieldCheck, ChevronRight, LogOut, Sparkles, KeyRound } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import ReloadPrompt from './components/ReloadPrompt';
 
@@ -22,9 +22,11 @@ export default function App() {
     if (id === 'skk' && pass === 'skk') {
       setIsLoggedIn(true);
       setError(false);
-    } else if (id === 'hunter' && pass === 'hunter') {
+    } else if (id === 'hunter' && pass === 'hunter123') {
       setIsLoggedIn(true);
       setError(false);
+    } else if (!id && !pass) {
+      setError(true);
     } else {
       setError(true);
     }
@@ -44,8 +46,10 @@ export default function App() {
     } else {
       clickTimer.current = setTimeout(() => {
         if (clickCount.current > 0 && clickCount.current < 3) {
-          // If it was just a single or double click, trigger the normal login logic manually
-          if ((id === 'skk' && pass === 'skk') || (id === 'hunter' && pass === 'hunter')) {
+          if (id === 'skk' && pass === 'skk') {
+            setIsLoggedIn(true);
+            setError(false);
+          } else if (id === 'hunter' && pass === 'hunter123') {
             setIsLoggedIn(true);
             setError(false);
           } else {
@@ -53,7 +57,7 @@ export default function App() {
           }
         }
         clickCount.current = 0;
-      }, 300);
+      }, 350);
     }
   };
 
@@ -65,47 +69,59 @@ export default function App() {
   };
 
   return (
-    <div className={`bg-black text-zinc-100 font-sans selection:bg-cyan-500/30 ${!isLoggedIn ? 'min-h-screen flex items-center justify-center p-4' : 'h-screen overflow-hidden'}`}>
+    <div className={`bg-[#050508] text-zinc-100 font-sans selection:bg-cyan-500/30 ${!isLoggedIn ? 'min-h-screen flex items-center justify-center p-4 relative overflow-hidden' : 'h-[100dvh] h-screen overflow-hidden'}`}>
       <ReloadPrompt />
+
+      {!isLoggedIn && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[140px] opacity-40 animate-pulse" />
+          <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-purple-600/10 rounded-full blur-[120px] opacity-30" />
+        </div>
+      )}
+
       <AnimatePresence mode="wait">
         {!isLoggedIn ? (
           <motion.div
             key="login"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="w-full max-w-sm sm:max-w-md"
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-sm sm:max-w-md relative z-10"
           >
-            <div className="relative">
-              {/* Decorative background glow */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-[2rem] blur opacity-20 sm:opacity-30" />
-              
-              <div className="relative bg-zinc-950/90 backdrop-blur-xl border border-zinc-800/60 p-6 sm:p-8 rounded-[2rem] shadow-2xl">
-                <div className="flex justify-center mb-8">
-                  <div className="p-3 bg-zinc-900 rounded-2xl shadow-inner border border-zinc-800/80">
-                    <ShieldCheck className="w-8 h-8 text-cyan-400" />
+            <div className="relative rounded-3xl p-[1px] bg-gradient-to-b from-white/20 via-white/5 to-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
+              <div className="bg-zinc-950/85 backdrop-blur-3xl p-6 sm:p-8 rounded-[23px] relative overflow-hidden">
+                {/* Specular top sheen line */}
+                <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
+
+                {/* Header Pod */}
+                <div className="flex flex-col items-center mb-6 text-center">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-zinc-800 to-zinc-900 border border-white/15 flex items-center justify-center shadow-[0_0_25px_rgba(6,182,212,0.25)] mb-3 relative group">
+                    <ShieldCheck className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.6)]" />
+                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400" />
                   </div>
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+                    FocusFlow <span className="text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">OS</span>
+                  </h1>
+                  <p className="text-zinc-400 text-xs mt-1">Tactical Habit & Skill Operations Center</p>
                 </div>
 
-                <h1 className="text-2xl font-semibold text-center mb-2 tracking-tight text-white">System Access</h1>
-                <p className="text-zinc-400 text-center mb-8 text-sm">Please authenticate to continue.</p>
-
-                <form onSubmit={handleLogin} className="space-y-5" noValidate>
+                <form onSubmit={handleLogin} className="space-y-4" noValidate>
                   <div>
-                    <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-widest mb-2 ml-1">
+                    <label className="block text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider mb-1.5 ml-1">
                       Identification
                     </label>
                     <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <User className="h-5 w-5 text-zinc-500 group-focus-within:text-cyan-400 transition-colors" />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-cyan-400 transition-colors">
+                        <User className="h-4 w-4" />
                       </div>
                       <input
                         type="text"
                         value={id}
                         onChange={(e) => { setId(e.target.value); setError(false); }}
-                        className="block w-full pl-11 pr-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500/50 focus:outline-none transition-all sm:text-sm"
-                        placeholder="Enter ID"
+                        className="block w-full pl-10 pr-4 py-2.5 bg-zinc-900/60 border border-white/10 rounded-xl text-zinc-100 placeholder-zinc-600 focus:ring-1 focus:ring-cyan-500/60 focus:border-cyan-500/60 focus:bg-zinc-900/90 focus:outline-none transition-all text-xs sm:text-sm font-medium"
+                        placeholder="Enter Operator ID"
                         required
                         autoComplete="off"
                       />
@@ -113,18 +129,18 @@ export default function App() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-zinc-500 uppercase tracking-widest mb-2 ml-1">
+                    <label className="block text-[10px] font-mono font-bold text-zinc-400 uppercase tracking-wider mb-1.5 ml-1">
                       Passcode
                     </label>
                     <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-zinc-500 group-focus-within:text-cyan-400 transition-colors" />
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-cyan-400 transition-colors">
+                        <Lock className="h-4 w-4" />
                       </div>
                       <input
                         type="password"
                         value={pass}
                         onChange={(e) => { setPass(e.target.value); setError(false); }}
-                        className="block w-full pl-11 pr-4 py-3 bg-zinc-900/50 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:ring-1 focus:ring-cyan-500/50 focus:border-cyan-500/50 focus:outline-none transition-all sm:text-sm"
+                        className="block w-full pl-10 pr-4 py-2.5 bg-zinc-900/60 border border-white/10 rounded-xl text-zinc-100 placeholder-zinc-600 focus:ring-1 focus:ring-cyan-500/60 focus:border-cyan-500/60 focus:bg-zinc-900/90 focus:outline-none transition-all text-xs sm:text-sm font-medium"
                         placeholder="••••••••"
                         required
                       />
@@ -134,33 +150,38 @@ export default function App() {
                   <AnimatePresence>
                     {error && (
                       <motion.div
-                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                        animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
-                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
                         className="overflow-hidden"
                       >
-                        <div className="text-red-400 text-xs sm:text-sm text-center bg-red-500/10 py-2.5 rounded-lg border border-red-500/20">
-                          Access Denied. Invalid credentials.
+                        <div className="text-rose-400 text-xs font-mono font-bold text-center bg-rose-500/10 py-2 rounded-xl border border-rose-500/25 flex items-center justify-center gap-1.5 shadow-sm">
+                          <span>⚠️ ACCESS DENIED: Invalid Passcode</span>
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-                     <p className="text-amber-400/90 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Guest Access</p>
-                     <p className="text-amber-200/70 text-[10px] sm:text-xs leading-relaxed">Available credentials: <br/><strong>hunter/hunter</strong></p>
+                  {/* System Credentials Micro-Tile */}
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-left">
+                     <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                       <span className="flex items-center gap-1"><KeyRound size={11} className="text-cyan-400" /> ID: <strong className="text-white">hunter</strong></span>
+                       <span>PASS: <strong className="text-cyan-300">hunter123</strong></span>
+                     </div>
                   </div>
-                  <div className="pt-2">
+
+                  {/* Submit Button */}
+                  <div className="pt-1">
                     <motion.button
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
                       type="button"
                       onClick={handleSecretClick}
-                      className="relative group w-full flex items-center justify-center py-3.5 px-4 rounded-xl text-sm font-semibold text-white overflow-hidden transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:ring-offset-2 focus:ring-offset-black select-none"
+                      className="relative group w-full flex items-center justify-center py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-white overflow-hidden transition-all shadow-[0_0_20px_rgba(6,182,212,0.35)] focus:outline-none select-none border border-cyan-400/40"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 group-hover:from-cyan-500 group-hover:to-blue-500 transition-colors duration-300" />
-                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-500 blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
-                      <span className="relative flex items-center gap-2 pointer-events-none">
+                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 group-hover:from-cyan-500 group-hover:to-blue-500 transition-all duration-300" />
+                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-400 blur-md opacity-0 group-hover:opacity-60 transition-opacity duration-300" />
+                      <span className="relative flex items-center gap-2 pointer-events-none font-mono tracking-wider uppercase">
                         Authenticate <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                       </span>
                     </motion.button>
@@ -171,21 +192,21 @@ export default function App() {
           </motion.div>
         ) : id === 'hunter' ? (
           <motion.div
-            key="hunter-dead-end"
+            key="decoy-dashboard"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-zinc-950"
+            className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#050508]"
           >
-            <div className="p-4 bg-zinc-900 rounded-full mb-6 border border-zinc-800">
+            <div className="p-5 bg-zinc-900/70 border border-white/10 rounded-3xl mb-6 shadow-2xl backdrop-blur-xl">
               <ShieldCheck className="w-12 h-12 text-zinc-500" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-semibold text-white mb-4 tracking-tight">App still in progress, leveling up soon</h1>
-            <p className="text-zinc-500 max-w-sm mb-10 text-sm">You are currently on a guest path. We are actively building the next generation of features.</p>
+            <h1 className="text-2xl sm:text-3xl font-black text-white mb-3 tracking-tight">App in progress.</h1>
+            <p className="text-zinc-400 max-w-sm mb-8 text-sm">Please come back later.</p>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all font-medium"
+              className="flex items-center gap-2 px-6 py-3 bg-zinc-900/90 border border-white/10 hover:border-white/20 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all font-semibold text-sm shadow-lg"
             >
               <LogOut size={16} /> Logout
             </button>
@@ -206,3 +227,4 @@ export default function App() {
     </div>
   );
 }
+

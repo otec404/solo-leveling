@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, X, Search, Plus, Minus, Calculator, Delete, SlidersHorizontal } from 'lucide-react';
+import { Check, X, Search, Plus, Minus, Calculator, Delete, SlidersHorizontal, Globe, ListFilter, Sparkles } from 'lucide-react';
 import { Skill, SkillLog } from '../types';
 import { playTick } from './DailyDashboardView';
-import { AVAILABLE_ICONS } from './icons';
+import { getSkillIcon } from './icons';
 import { triggerHaptic } from '../lib/haptics';
+import InstantSphereLog from './InstantSphereLog';
 
 export const THEMES: Record<string, any> = {
   rose: { bgActive: 'bg-rose-500/15 text-rose-400 border-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.15)]', textMain: 'text-rose-400', badgeBg: 'bg-rose-500' },
@@ -38,7 +39,6 @@ function DrumScroller({ value, onChange, theme }: { value: number, onChange: (v:
   const containerRef = useRef<HTMLDivElement>(null);
   const lastVal = useRef(value);
 
-  // Sync scroll position if the value changes externally (e.g. from keypad)
   useEffect(() => {
     if (containerRef.current) {
       const expected = value * 48;
@@ -82,7 +82,7 @@ function DrumScroller({ value, onChange, theme }: { value: number, onChange: (v:
 
 function QuantItem({ skill, val, onUpdate, theme, isExpanded, onToggleExpand }: any) {
   const [mode, setMode] = useState<'scroller'|'stepper'|'keypad'>('scroller');
-  const Icon = AVAILABLE_ICONS[skill.icon || 'Activity'] || AVAILABLE_ICONS['Activity'];
+  const Icon = getSkillIcon(skill);
 
   const commitVal = (v: number) => {
     if (v < 0) v = 0;
@@ -217,12 +217,22 @@ interface QuickLogSheetProps {
   currentDateStr: string;
   categoryColors: Record<string, string>;
   onUpdateLog: (skillId: string, date: string, updates: Partial<SkillLog>) => void;
+  defaultMode?: 'sphere' | 'list';
 }
 
 export default function QuickLogSheet({
-  isOpen, onClose, skills, dateLogs, currentDateStr, categoryColors, onUpdateLog
+  isOpen, 
+  onClose, 
+  skills, 
+  logs,
+  dateLogs, 
+  currentDateStr, 
+  categoryColors, 
+  onUpdateLog,
+  defaultMode = 'sphere'
 }: QuickLogSheetProps) {
   
+  const [logMode, setLogMode] = useState<'sphere' | 'list'>(defaultMode);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [expandedQuantSkill, setExpandedQuantSkill] = useState<string | null>(null);
@@ -279,12 +289,12 @@ export default function QuickLogSheet({
         return;
       }
 
-      if (e.key === 'Backspace') {
+      if (e.key === 'Backspace' && logMode === 'list') {
         setSearchQuery(prev => prev.slice(0, -1));
         return;
       }
 
-      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && e.key !== ' ') {
+      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && e.key !== ' ' && logMode === 'list') {
         setSearchQuery(prev => prev + e.key);
         searchInputRef.current?.focus();
         return;
@@ -293,7 +303,7 @@ export default function QuickLogSheet({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, searchQuery, expandedQuantSkill]);
+  }, [isOpen, searchQuery, expandedQuantSkill, logMode]);
 
   const updateValue = (skillId: string, val: number) => {
     setTempLogs(prev => ({ ...prev, [skillId]: val }));
@@ -365,164 +375,223 @@ export default function QuickLogSheet({
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-[100]"
           />
           <motion.div 
             initial={{ opacity: 0, y: 50, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.98 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[700px] sm:h-[750px] sm:max-h-[90vh] bg-zinc-950 sm:border border-white/10 rounded-t-3xl sm:rounded-[2rem] shadow-2xl z-[101] flex flex-col overflow-hidden max-h-[90vh]"
+            className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[760px] sm:h-[720px] sm:max-h-[92vh] bg-zinc-950 sm:border border-white/15 rounded-t-3xl sm:rounded-[2.5rem] shadow-2xl z-[101] flex flex-col overflow-hidden max-h-[92vh]"
           >
-            {/* Layout Body (Categories Rail + Items List) */}
-            <div className="flex-1 flex flex-col sm:flex-row overflow-hidden bg-zinc-950 relative">
-              
-              {/* Category Filter Rail (Desktop Only) */}
-              <div className="hidden sm:flex sm:flex-col overflow-y-auto p-3 gap-2 border-r border-white/5 shrink-0 sm:w-48 hide-scrollbar bg-zinc-950 z-10">
-                 <button 
-                   onClick={() => { setActiveCategory('All'); setExpandedQuantSkill(null); triggerHaptic('light'); }} 
-                   className={`px-4 py-3 sm:py-4 rounded-xl font-bold text-sm text-left transition-all whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${activeCategory === 'All' ? 'bg-white text-black shadow-md' : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'}`}
-                 >
-                   All Habits
-                 </button>
-                 {categories.map(cat => {
-                   const t = THEMES[categoryColors[cat] || 'cyan'] || THEMES['cyan'];
-                   return (
-                     <button 
-                       key={cat}
-                       onClick={() => { setActiveCategory(cat); setExpandedQuantSkill(null); triggerHaptic('light'); }}
-                       className={`px-4 py-3 sm:py-4 rounded-xl font-bold text-sm text-left transition-all whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${activeCategory === cat ? t.bgActive.split(' ')[0] + ' text-white shadow-md' : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'}`}
-                     >
-                       {cat}
-                     </button>
-                   );
-                 })}
+            {/* Top Modal Header with Mode Switch */}
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 bg-zinc-950/90 backdrop-blur-md z-30 shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white">
+                  <Sparkles size={16} />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-mono font-black text-white tracking-tight">Instant Logs</h3>
+                  <p className="text-[10px] font-mono text-zinc-400">Tactical spherical & fast batch logging</p>
+                </div>
               </div>
 
-              {/* Skills List */}
-              <div 
-                className="flex-1 overflow-y-auto p-3 sm:p-5 hide-scrollbar flex flex-col gap-2 bg-zinc-950"
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-              >
-                {displayedSkills.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-zinc-500 gap-3 pb-20">
-                     <Search size={32} className="opacity-20" />
-                     <p className="font-medium text-sm">No habits found.</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2 pb-10">
-                    {displayedSkills.map(skill => {
-                      const theme = THEMES[categoryColors[skill.category] || 'cyan'] || THEMES['cyan'];
-                      const Icon = AVAILABLE_ICONS[skill.icon || 'Target'] || AVAILABLE_ICONS['Target'];
-                      const log = dateLogs.find(l => l.skillId === skill.id);
-                      
-                      // Binary Skill Render
-                      if (skill.mode === 'checkbox') {
-                         const isChecked = tempLogs[skill.id] !== undefined ? !!tempLogs[skill.id] : !!log?.checked;
-                         return (
-                           <button 
-                             key={skill.id}
-                             onClick={() => toggleBinary(skill.id, isChecked)}
-                             className={`w-full flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/50 active:scale-[0.98] border ${isChecked ? theme.bgActive + ' border-white/20' : 'bg-zinc-900/40 border-transparent hover:bg-zinc-800/80 hover:border-white/10'}`}
-                           >
-                              <div className="flex items-center gap-4 min-w-0">
-                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${isChecked ? theme.textMain + ' bg-white/10' : 'bg-zinc-800 text-zinc-500'}`}>
-                                    <Icon size={20} />
-                                 </div>
-                                 <div className="flex flex-col min-w-0 text-left">
-                                    <span className={`font-bold truncate text-base ${isChecked ? 'text-white' : 'text-zinc-300'}`}>
-                                       <HighlightedText text={skill.name} query={searchQuery} />
-                                    </span>
-                                    {searchQuery && <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 truncate mt-0.5">{skill.category}</span>}
-                                 </div>
-                              </div>
-                              <div className={`shrink-0 ml-4 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${isChecked ? 'border-transparent ' + theme.badgeBg : 'border-zinc-700'}`}>
-                                 {isChecked && <Check size={14} className="text-zinc-950" strokeWidth={4} />}
-                              </div>
-                           </button>
-                         );
-                      }
+              <div className="flex items-center gap-2">
+                {/* Mode Selector: 3D Sphere vs Batch List */}
+                <div className="flex items-center bg-zinc-900 border border-white/15 rounded-xl p-1 shadow-inner">
+                  <button
+                    type="button"
+                    onClick={() => { setLogMode('sphere'); triggerHaptic('light'); }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                      logMode === 'sphere'
+                        ? 'bg-white text-black shadow-md'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <Globe size={13} />
+                    <span className="hidden sm:inline">3D Sphere</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setLogMode('list'); triggerHaptic('light'); }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all ${
+                      logMode === 'list'
+                        ? 'bg-white text-black shadow-md'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    <ListFilter size={13} />
+                    <span className="hidden sm:inline">Batch List</span>
+                  </button>
+                </div>
 
-                      // Quantitative Skill Render (Inline Expansion)
-                      const val = tempLogs[skill.id] ?? (log?.count || 0);
-                      const isExpanded = expandedQuantSkill === skill.id;
-
-                      return (
-                         <QuantItem
-                           key={skill.id}
-                           skill={skill}
-                           val={val}
-                           theme={theme}
-                           isExpanded={isExpanded}
-                           onUpdate={updateValue}
-                           onToggleExpand={() => {
-                              triggerHaptic('light');
-                              setExpandedQuantSkill(isExpanded ? null : skill.id);
-                           }}
-                         />
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Header & Search (Moved to bottom) */}
-            <div className="p-4 sm:p-6 pb-6 border-t border-white/5 bg-zinc-950 z-20 shrink-0">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-2xl font-black text-white tracking-tight">Quick Log</h3>
-                <button aria-label="Close" onClick={handleClose} className="p-2 text-zinc-500 hover:text-white bg-zinc-900 hover:bg-zinc-800 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-white">
-                  <X size={20} />
+                <button 
+                  aria-label="Close Instant Log Sheet" 
+                  onClick={handleClose} 
+                  className="p-2 text-zinc-400 hover:text-white bg-zinc-900 hover:bg-zinc-800 rounded-xl transition-all border border-white/10 active:scale-95"
+                >
+                  <X size={18} />
                 </button>
               </div>
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Search habits..."
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl py-3 pl-11 pr-16 text-white font-medium outline-none focus:border-zinc-500 focus-visible:ring-1 focus-visible:ring-white/20 transition-all placeholder:text-zinc-600"
+            </div>
+
+            {/* Layout Body: Either 3D InfiniteMenu Sphere OR Batch List */}
+            {logMode === 'sphere' ? (
+              <div className="flex-1 overflow-hidden p-2 sm:p-4 bg-zinc-950 flex flex-col justify-center">
+                <InstantSphereLog 
+                  skills={skills}
+                  logs={logs}
+                  currentDateStr={currentDateStr}
+                  categoryColors={categoryColors}
+                  onUpdateLog={onUpdateLog}
                 />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white bg-zinc-800 px-2 py-1 rounded text-xs font-bold uppercase tracking-widest transition-colors">
-                    Esc
-                  </button>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col sm:flex-row overflow-hidden bg-zinc-950 relative">
+                
+                {/* Category Filter Rail (Desktop Only) */}
+                <div className="hidden sm:flex sm:flex-col overflow-y-auto p-3 gap-2 border-r border-white/5 shrink-0 sm:w-48 hide-scrollbar bg-zinc-950 z-10">
+                   <button 
+                     onClick={() => { setActiveCategory('All'); setExpandedQuantSkill(null); triggerHaptic('light'); }} 
+                     className={`px-4 py-3 sm:py-4 rounded-xl font-bold text-sm text-left transition-all whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${activeCategory === 'All' ? 'bg-white text-black shadow-md' : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'}`}
+                   >
+                     All Habits
+                   </button>
+                   {categories.map(cat => {
+                     const t = THEMES[categoryColors[cat] || 'cyan'] || THEMES['cyan'];
+                     return (
+                       <button 
+                         key={cat}
+                         onClick={() => { setActiveCategory(cat); setExpandedQuantSkill(null); triggerHaptic('light'); }}
+                         className={`px-4 py-3 sm:py-4 rounded-xl font-bold text-sm text-left transition-all whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-white/50 ${activeCategory === cat ? t.bgActive.split(' ')[0] + ' text-white shadow-md' : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200'}`}
+                       >
+                         {cat}
+                       </button>
+                     );
+                   })}
+                </div>
+
+                {/* Skills List */}
+                <div 
+                  className="flex-1 overflow-y-auto p-3 sm:p-5 hide-scrollbar flex flex-col gap-2 bg-zinc-950"
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  {displayedSkills.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-zinc-500 gap-3 pb-20">
+                       <Search size={32} className="opacity-20" />
+                       <p className="font-medium text-sm">No habits found.</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2 pb-10">
+                      {displayedSkills.map(skill => {
+                        const theme = THEMES[categoryColors[skill.category] || 'cyan'] || THEMES['cyan'];
+                        const Icon = getSkillIcon(skill);
+                        const log = dateLogs.find(l => l.skillId === skill.id);
+                        
+                        // Binary Skill Render
+                        if (skill.mode === 'checkbox') {
+                           const isChecked = tempLogs[skill.id] !== undefined ? !!tempLogs[skill.id] : !!log?.checked;
+                           return (
+                             <button 
+                               key={skill.id}
+                               onClick={() => toggleBinary(skill.id, isChecked)}
+                               className={`w-full flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/50 active:scale-[0.98] border ${isChecked ? theme.bgActive + ' border-white/20' : 'bg-zinc-900/40 border-transparent hover:bg-zinc-800/80 hover:border-white/10'}`}
+                             >
+                                <div className="flex items-center gap-4 min-w-0">
+                                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${isChecked ? theme.textMain + ' bg-white/10' : 'bg-zinc-800 text-zinc-500'}`}>
+                                      <Icon size={20} />
+                                   </div>
+                                   <div className="flex flex-col min-w-0 text-left">
+                                      <span className={`font-bold truncate text-base ${isChecked ? 'text-white' : 'text-zinc-300'}`}>
+                                         <HighlightedText text={skill.name} query={searchQuery} />
+                                      </span>
+                                      {searchQuery && <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 truncate mt-0.5">{skill.category}</span>}
+                                   </div>
+                                </div>
+                                <div className={`shrink-0 ml-4 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${isChecked ? 'border-transparent ' + theme.badgeBg : 'border-zinc-700'}`}>
+                                   {isChecked && <Check size={14} className="text-zinc-950" strokeWidth={4} />}
+                                </div>
+                             </button>
+                           );
+                        }
+
+                        // Quantitative Skill Render (Inline Expansion)
+                        const val = tempLogs[skill.id] ?? (log?.count || 0);
+                        const isExpanded = expandedQuantSkill === skill.id;
+
+                        return (
+                           <QuantItem
+                             key={skill.id}
+                             skill={skill}
+                             val={val}
+                             theme={theme}
+                             isExpanded={isExpanded}
+                             onUpdate={updateValue}
+                             onToggleExpand={() => {
+                                triggerHaptic('light');
+                                setExpandedQuantSkill(isExpanded ? null : skill.id);
+                             }}
+                           />
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Header & Search (Active in list mode) */}
+            {logMode === 'list' && (
+              <div className="p-4 sm:p-5 pb-5 border-t border-white/10 bg-zinc-950 z-20 shrink-0">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Search habits..."
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl py-3 pl-11 pr-16 text-white font-medium outline-none focus:border-zinc-500 focus-visible:ring-1 focus-visible:ring-white/20 transition-all placeholder:text-zinc-600"
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white bg-zinc-800 px-2 py-1 rounded text-xs font-bold uppercase tracking-widest transition-colors">
+                      Esc
+                    </button>
+                  )}
+                </div>
+
+                {/* Persistent Category Indicator Dots */}
+                {!searchQuery && (
+                  <div className="flex flex-col items-center justify-center mt-4">
+                     <div className="flex items-center justify-center gap-2">
+                       <button 
+                          onClick={() => { setActiveCategory('All'); setExpandedQuantSkill(null); triggerHaptic('light'); }}
+                          className="p-1 active:scale-95 transition-transform"
+                       >
+                          <div className={`h-2 rounded-full transition-all duration-300 ${activeCategory === 'All' ? 'w-8 bg-white shadow-[0_0_12px_rgba(255,255,255,0.4)]' : 'w-2 bg-zinc-800 hover:bg-zinc-700'}`} />
+                       </button>
+                       {categories.map(cat => {
+                         const t = THEMES[categoryColors[cat] || 'cyan'] || THEMES['cyan'];
+                         return (
+                           <button
+                             key={cat}
+                             onClick={() => { setActiveCategory(cat); setExpandedQuantSkill(null); triggerHaptic('light'); }}
+                             className="p-1 active:scale-95 transition-transform"
+                             title={cat}
+                           >
+                             <div className={`h-2 rounded-full transition-all duration-300 ${activeCategory === cat ? `w-8 ${t.badgeBg} ${t.bgActive.match(/shadow-\[[^\]]+\]/)?.[0] || ''}` : 'w-2 bg-zinc-800 hover:bg-zinc-700'}`} />
+                           </button>
+                         );
+                       })}
+                     </div>
+                     <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-2">
+                       {activeCategory === 'All' ? 'All Habits' : activeCategory}
+                     </span>
+                  </div>
                 )}
               </div>
-
-              {/* Persistent Category Indicator Dots */}
-              {!searchQuery && (
-                <div className="flex flex-col items-center justify-center mt-6 mb-2">
-                   <div className="flex items-center justify-center gap-2">
-                     <button 
-                        onClick={() => { setActiveCategory('All'); setExpandedQuantSkill(null); triggerHaptic('light'); }}
-                        className="p-1 active:scale-95 transition-transform"
-                     >
-                        <div className={`h-2 rounded-full transition-all duration-300 ${activeCategory === 'All' ? 'w-8 bg-white shadow-[0_0_12px_rgba(255,255,255,0.4)]' : 'w-2 bg-zinc-800 hover:bg-zinc-700'}`} />
-                     </button>
-                     {categories.map(cat => {
-                       const t = THEMES[categoryColors[cat] || 'cyan'] || THEMES['cyan'];
-                       return (
-                         <button
-                           key={cat}
-                           onClick={() => { setActiveCategory(cat); setExpandedQuantSkill(null); triggerHaptic('light'); }}
-                           className="p-1 active:scale-95 transition-transform"
-                           title={cat}
-                         >
-                           <div className={`h-2 rounded-full transition-all duration-300 ${activeCategory === cat ? `w-8 ${t.badgeBg} ${t.bgActive.match(/shadow-\[[^\]]+\]/)?.[0] || ''}` : 'w-2 bg-zinc-800 hover:bg-zinc-700'}`} />
-                         </button>
-                       );
-                     })}
-                   </div>
-                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-3">
-                     {activeCategory === 'All' ? 'All Habits' : activeCategory}
-                   </span>
-                </div>
-              )}
-            </div>
+            )}
           </motion.div>
         </>
       )}

@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { Skill, SkillLog } from '../types';
-import { AVAILABLE_ICONS } from './icons';
+import { AVAILABLE_ICONS, getSkillIcon } from './icons';
 
 interface GamifiedReportCardProps {
   userId: string;
@@ -73,7 +73,7 @@ export const GamifiedReportCard = forwardRef<HTMLDivElement, GamifiedReportCardP
            <h3 className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-6 border-b border-zinc-800/80 pb-3 relative z-10">Overall Totals</h3>
            <div className="grid grid-cols-3 gap-6 relative z-10">
               {skills.map(skill => {
-                 const Icon = AVAILABLE_ICONS[skill.icon as keyof typeof AVAILABLE_ICONS] || AVAILABLE_ICONS.Activity;
+                 const Icon = getSkillIcon(skill);
                  const skillLogs = logs.filter(l => l.skillId === skill.id && (l.count > 0 || l.checked));
                  const total = skillLogs.reduce((acc, l) => acc + (skill.mode === 'counter' ? l.count : 1), 0);
                  

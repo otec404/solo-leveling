@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Home, CalendarDays, ArrowLeft, Check, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, CalendarDays, ArrowLeft, Check, Award, FastForward } from 'lucide-react';
 import { Skill, SkillLog } from '../types';
 import { THEME_COLORS } from './StatsView';
+import { getSkillIcon } from './icons';
 import { useRef } from 'react';
+import TimelapsePlayerModal from './TimelapsePlayerModal';
 
 function useSwipeDirection(onSwipe: (dir: 'next' | 'prev') => void) {
   const startRef = useRef<{ x: number, y: number } | null>(null);
@@ -67,6 +69,7 @@ interface MasterCalendarProps {
 export default function MasterCalendarView({ skills, logs, categoryColors, onBack, onJumpToSkill }: MasterCalendarProps) {
   // zoomLevel: 3 = Year, 2 = Month, 0 = Day
   const [zoomLevel, setZoomLevel] = useState<number>(3);
+  const [showTimelapse, setShowTimelapse] = useState<boolean>(false);
   const [focusedDateStr, setFocusedDateStr] = useState(() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -134,6 +137,14 @@ export default function MasterCalendarView({ skills, logs, categoryColors, onBac
           </div>
           
           <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setShowTimelapse(true)}
+              className="flex items-center gap-1 px-3 py-1.5 bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/30 hover:border-purple-400/60 rounded-full text-purple-300 hover:text-white text-xs font-mono font-bold transition-all shadow-sm"
+              title="Time-Lapse Replay"
+            >
+              <FastForward size={14} className="text-purple-400" />
+              <span className="hidden sm:inline">Time-Lapse</span>
+            </button>
             
             <button 
               onClick={jumpToToday}
@@ -157,6 +168,17 @@ export default function MasterCalendarView({ skills, logs, categoryColors, onBac
           {zoomLevel === 0 && <MasterDayView key={`day-${focusedDateStr}`} focusedDateStr={focusedDateStr} setFocusedDateStr={setFocusedDateStr} skills={skills} logs={logs} categoryColors={categoryColors} onJumpToSkill={onJumpToSkill} onPrev={() => handleSwipeTime('prev')} onNext={() => handleSwipeTime('next')} />}
         </AnimatePresence>
       </div>
+
+      {showTimelapse && (
+        <TimelapsePlayerModal
+          isOpen={showTimelapse}
+          onClose={() => setShowTimelapse(false)}
+          skills={skills}
+          logs={logs}
+          categoryColors={categoryColors}
+          initialDate={focusedDateStr}
+        />
+      )}
     </div>
   );
 }
@@ -164,11 +186,14 @@ export default function MasterCalendarView({ skills, logs, categoryColors, onBac
 // Master Year View
 function MasterYearView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skills, logs, categoryColors, onPrev, onNext }: any) {
   const year = parseInt(focusedDateStr.substring(0, 4));
+  const [inspectedDate, setInspectedDate] = useState<string | null>(null);
   
   // Aggregate data across all skills for the year
   const yearData = useMemo(() => {
     const data: Record<string, { total: number, cats: Set<string> }> = {};
     let globalMax = 0;
+    let totalYearCount = 0;
+    let activeDaysCount = 0;
     
     logs.forEach(l => {
       if (!l.date.startsWith(year.toString())) return;
@@ -176,11 +201,15 @@ function MasterYearView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skill
       if (!skill) return;
       if (l.count === 0 && !l.checked) return;
       
-      if (!data[l.date]) data[l.date] = { total: 0, cats: new Set<string>() };
+      if (!data[l.date]) {
+        data[l.date] = { total: 0, cats: new Set<string>() };
+        activeDaysCount++;
+      }
       
-      // We'll normalize counts slightly to combine counters and booleans
+      // Normalize counts
       const val = skill.mode === 'counter' ? l.count : 1;
       data[l.date].total += val;
+      totalYearCount += val;
       data[l.date].cats.add(skill.category);
       
       if (data[l.date].total > globalMax) globalMax = data[l.date].total;
@@ -196,17 +225,33 @@ function MasterYearView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skill
       }
     }
     
-    return { data, globalMax: Math.max(globalMax, 1), bestDay };
+    return { data, globalMax: Math.max(globalMax, 1), bestDay, totalYearCount, activeDaysCount };
   }, [logs, skills, year]);
   
   const months = Array.from({ length: 12 }, (_, i) => {
     const d = new Date(year, i, 1);
+    const mStr = String(i + 1).padStart(2, '0');
+    let monthTotal = 0;
+    Object.entries(yearData.data).forEach(([date, info]: [string, any]) => {
+      if (date.startsWith(`${year}-${mStr}`)) {
+        monthTotal += info.total;
+      }
+    });
+
     return {
       monthIdx: i,
+      monthStr: mStr,
       name: d.toLocaleDateString('default', { month: 'short' }),
-      dateStr: `${year}-${String(i+1).padStart(2,'0')}-01`
+      dateStr: `${year}-${mStr}-01`,
+      total: monthTotal
     };
   });
+
+  const inspectedInfo = inspectedDate && yearData.data[inspectedDate] ? {
+    date: inspectedDate,
+    total: yearData.data[inspectedDate].total,
+    cats: Array.from(yearData.data[inspectedDate].cats)
+  } : null;
 
   return (
     <motion.div 
@@ -216,11 +261,49 @@ function MasterYearView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skill
       transition={{ duration: 0.3 }}
       className="absolute inset-0 flex flex-col p-4 sm:p-8 w-full max-w-4xl mx-auto overflow-y-auto custom-scrollbar"
     >
-      <div className="flex items-center justify-between mb-8">
-        <button onClick={onPrev} className="p-3 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"><ChevronLeft size={24} /></button>
-        <h2 className="text-4xl sm:text-5xl font-black tracking-tighter text-white">{year}</h2>
-        <button onClick={onNext} className="p-3 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"><ChevronRight size={24} /></button>
+      {/* Year View Header with Overall Year Count */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <button onClick={onPrev} className="p-3 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"><ChevronLeft size={24} /></button>
+          <div>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tighter text-white">{year}</h2>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold uppercase tracking-wider">
+                {yearData.totalYearCount} Overall Logs
+              </span>
+              <span className="text-xs font-semibold text-zinc-500">•</span>
+              <span className="text-xs font-semibold text-zinc-400">
+                {yearData.activeDaysCount} Active Days
+              </span>
+            </div>
+          </div>
+        </div>
+        <button onClick={onNext} className="p-3 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors self-start sm:self-center"><ChevronRight size={24} /></button>
       </div>
+
+      {/* Daily Count Interactive Inspector Bar */}
+      {inspectedInfo && (
+        <motion.div 
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 p-3 rounded-xl bg-zinc-900/90 border border-white/15 flex items-center justify-between text-xs backdrop-blur-xl shadow-lg"
+        >
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-white uppercase">{new Date(inspectedInfo.date + 'T12:00:00').toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <span className="text-zinc-600">|</span>
+            <span className="font-black text-purple-300">Daily Count: {inspectedInfo.total} logs</span>
+          </div>
+          <button 
+            onClick={() => {
+              setFocusedDateStr(inspectedInfo.date);
+              setZoomLevel(0);
+            }}
+            className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] transition-colors"
+          >
+            View Day →
+          </button>
+        </motion.div>
+      )}
       
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-24">
         {months.map(m => (
@@ -232,7 +315,14 @@ function MasterYearView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skill
               setZoomLevel(2);
             }}
           >
-            <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500 group-hover:text-white transition-colors mb-3">{m.name}</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors">{m.name}</h3>
+              {m.total > 0 && (
+                <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-white/10 text-white border border-white/10">
+                  {m.total}
+                </span>
+              )}
+            </div>
             <div className="grid grid-cols-7 gap-1 sm:gap-1.5 flex-1 relative z-10">
               {(() => {
                 const firstDay = new Date(year, m.monthIdx, 1).getDay();
@@ -246,32 +336,34 @@ function MasterYearView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skill
                   const dStr = `${year}-${String(m.monthIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
                   const dayData = yearData.data[dStr];
                   const isBest = yearData.bestDay === dStr;
+                  const isSelected = inspectedDate === dStr;
                   
                   if (!dayData) {
-                    return <div key={day} className="aspect-square bg-zinc-800/30 rounded-sm" />;
+                    return (
+                      <div 
+                        key={day} 
+                        className="aspect-square bg-zinc-800/30 rounded-sm hover:bg-zinc-800 transition-colors" 
+                        onMouseEnter={() => setInspectedDate(dStr)}
+                        onClick={(e) => { e.stopPropagation(); setInspectedDate(dStr); }}
+                      />
+                    );
                   }
                   
                   const intensity = Math.min(dayData.total / yearData.globalMax, 1);
-                  // Use first category color as base, or just purple if mixed
                   const catsArray = Array.from(dayData.cats) as string[];
                   const firstCat = catsArray[0] as string;
-                  let bgClass = 'bg-purple-500'; // fallback
-                  if (catsArray.length > 1) {
-                    bgClass = 'bg-indigo-400'; // multi-category day indicator
-                  } else if (firstCat) {
-                    const themeName = categoryColors[firstCat] || 'cyan';
-                    bgClass = `bg-${THEME_COLORS[themeName]?.replace('#', '')} `; // rough hack, better to use inline style for exact match
-                  }
-                  
                   const colorHex = catsArray.length > 1 ? '#818cf8' : THEME_COLORS[categoryColors[firstCat] || 'cyan'];
                   
                   return (
                     <div 
                       key={day} 
-                      className={`aspect-square rounded-[3px] sm:rounded-sm relative ${isBest ? 'ring-1 ring-white z-10 scale-125' : ''}`}
+                      onMouseEnter={() => setInspectedDate(dStr)}
+                      onClick={(e) => { e.stopPropagation(); setInspectedDate(dStr); }}
+                      title={`${dStr}: ${dayData.total} logs`}
+                      className={`aspect-square rounded-[3px] sm:rounded-sm relative cursor-pointer ${isBest ? 'ring-1 ring-white z-10 scale-125' : ''} ${isSelected ? 'ring-2 ring-purple-400 z-20 scale-125' : ''}`}
                       style={{ 
                         backgroundColor: colorHex, 
-                        opacity: 0.3 + (intensity * 0.7) 
+                        opacity: 0.35 + (intensity * 0.65) 
                       }}
                     />
                   );
@@ -296,6 +388,8 @@ function MasterMonthView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skil
   const monthData = useMemo(() => {
     const data: Record<string, { total: number, cats: Set<string> }> = {};
     let globalMax = 0;
+    let totalMonthLogs = 0;
+    let activeDaysCount = 0;
     
     logs.forEach(l => {
       if (!l.date.startsWith(`${year}-${String(month+1).padStart(2,'0')}`)) return;
@@ -303,10 +397,14 @@ function MasterMonthView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skil
       if (!skill) return;
       if (l.count === 0 && !l.checked) return;
       
-      if (!data[l.date]) data[l.date] = { total: 0, cats: new Set<string>() };
+      if (!data[l.date]) {
+        data[l.date] = { total: 0, cats: new Set<string>() };
+        activeDaysCount++;
+      }
       
       const val = skill.mode === 'counter' ? l.count : 1;
       data[l.date].total += val;
+      totalMonthLogs += val;
       data[l.date].cats.add(skill.category);
       
       if (data[l.date].total > globalMax) globalMax = data[l.date].total;
@@ -321,7 +419,7 @@ function MasterMonthView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skil
       }
     }
     
-    return { data, globalMax: Math.max(globalMax, 1), bestDay };
+    return { data, globalMax: Math.max(globalMax, 1), bestDay, totalMonthLogs, activeDaysCount };
   }, [logs, skills, year, month]);
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -335,20 +433,31 @@ function MasterMonthView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skil
       animate={{ opacity: 1, scale: 1 }} 
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{ duration: 0.3 }}
-      className="absolute inset-0 flex flex-col p-4 sm:p-8 w-full max-w-3xl mx-auto"
+      className="absolute inset-0 flex flex-col p-4 sm:p-8 w-full max-w-3xl mx-auto overflow-y-auto custom-scrollbar"
     >
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <button onClick={onPrev} className="p-3 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"><ChevronLeft size={24} /></button>
-        <h2 className="text-3xl sm:text-4xl font-black tracking-tighter text-white uppercase">{monthLabel}</h2>
+        <div className="flex flex-col items-center">
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tighter text-white uppercase">{monthLabel}</h2>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-white/10 text-white font-bold text-xs">
+              {monthData.totalMonthLogs} Total Logs
+            </span>
+            <span className="text-xs text-zinc-500 font-semibold">•</span>
+            <span className="text-xs text-zinc-400 font-semibold">
+              {monthData.activeDaysCount} Active Days
+            </span>
+          </div>
+        </div>
         <button onClick={onNext} className="p-3 bg-zinc-900 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"><ChevronRight size={24} /></button>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 sm:gap-4 flex-1 pb-24">
+      <div className="grid grid-cols-7 gap-2 sm:gap-3 flex-1 pb-24">
         {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-          <div key={`h-${i}`} className="text-center text-xs font-bold text-zinc-600 mb-2">{d}</div>
+          <div key={`h-${i}`} className="text-center text-xs font-bold text-zinc-500 uppercase">{d}</div>
         ))}
         
-        {blanks.map((_, i) => <div key={`b-${i}`} />)}
+        {blanks.map((_, i) => <div key={`b-${i}`} className="aspect-square" />)}
         
         {days.map(day => {
           const dStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
@@ -362,26 +471,35 @@ function MasterMonthView({ focusedDateStr, setFocusedDateStr, setZoomLevel, skil
                 setFocusedDateStr(dStr);
                 setZoomLevel(0);
               }}
-              className={`relative flex flex-col items-center justify-start pt-2 sm:pt-3 bg-zinc-900/30 hover:bg-zinc-800/60 border border-zinc-800/40 rounded-xl sm:rounded-2xl cursor-pointer transition-all aspect-square overflow-hidden group ${isBest ? 'ring-2 ring-white/30 bg-zinc-800/50' : ''}`}
+              className={`relative flex flex-col items-center justify-between p-1.5 sm:p-2.5 bg-zinc-900/40 hover:bg-zinc-800/80 border ${dayData ? 'border-white/15' : 'border-zinc-800/40'} rounded-xl sm:rounded-2xl cursor-pointer transition-all aspect-square overflow-hidden group ${isBest ? 'ring-2 ring-purple-400/80 bg-zinc-800/70 shadow-[0_0_15px_rgba(168,85,247,0.25)]' : ''}`}
             >
-              <span className={`text-sm sm:text-lg font-black z-10 ${dayData ? 'text-white' : 'text-zinc-600 group-hover:text-zinc-400'}`}>
-                {day}
-              </span>
+              <div className="w-full flex items-center justify-between z-10">
+                <span className={`text-xs sm:text-sm font-bold ${dayData ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'}`}>
+                  {day}
+                </span>
+                {dayData && (
+                  <span className="text-[10px] sm:text-xs font-black px-1.5 py-0.2 rounded-md bg-white/15 text-white shadow-sm">
+                    {dayData.total}
+                  </span>
+                )}
+              </div>
               
-              {dayData && (
-                <div className="flex flex-wrap justify-center gap-1 mt-1 z-10">
+              {dayData ? (
+                <div className="flex flex-wrap justify-center gap-1 mt-auto z-10 pb-0.5">
                   {Array.from(dayData.cats).slice(0, 3).map((cat: any, idx: number) => {
                     const cHex = THEME_COLORS[categoryColors[cat] || 'cyan'];
                     return (
                       <div key={idx} className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full" style={{ backgroundColor: cHex, boxShadow: `0 0 4px ${cHex}40` }} />
                     );
                   })}
-                  {dayData.cats.size > 3 && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-zinc-500" />}
+                  {dayData.cats.size > 3 && <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-zinc-400" />}
                 </div>
+              ) : (
+                <div className="h-2" />
               )}
               
               {isBest && (
-                <div className="absolute inset-0 bg-white/5 blur-xl pointer-events-none" />
+                <div className="absolute inset-0 bg-purple-500/10 blur-md pointer-events-none" />
               )}
             </div>
           );
@@ -461,15 +579,22 @@ function MasterDayView({ focusedDateStr, skills, logs, categoryColors, onJumpToS
                 <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400">{cat}</h3>
               </div>
               <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl overflow-hidden">
-                {items.map(({ skill, log }, idx) => (
+                {items.map(({ skill, log }: any, idx: number) => {
+                  const Icon = getSkillIcon(skill);
+                  return (
                   <div 
                     key={skill.id} 
                     className={`flex items-center justify-between p-4 ${idx !== items.length - 1 ? 'border-b border-zinc-800/50' : ''} hover:bg-zinc-800/40 transition-colors cursor-pointer`}
                     onClick={() => onJumpToSkill(skill)}
                   >
-                    <div className="flex flex-col">
-                      <span className="text-base font-semibold text-white">{skill.name}</span>
-                      {log.notes && <span className="text-xs text-zinc-500 line-clamp-1 mt-0.5">{log.notes}</span>}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-xl bg-zinc-800/80 flex items-center justify-center shrink-0">
+                        <Icon size={16} className="text-zinc-300" />
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-base font-semibold text-white truncate">{skill.name}</span>
+                        {log.notes && <span className="text-xs text-zinc-500 line-clamp-1 mt-0.5">{log.notes}</span>}
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {skill.mode === 'counter' ? (
@@ -481,7 +606,8 @@ function MasterDayView({ focusedDateStr, skills, logs, categoryColors, onJumpToS
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           );
