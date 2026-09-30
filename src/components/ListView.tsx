@@ -422,7 +422,7 @@ export default function ListView({
   const monthName = calendarViewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#050508] text-zinc-100 overflow-hidden font-sans select-none relative">
+    <div className="flex flex-col h-full w-full bg-[var(--app-bg,#0B0B0D)] text-zinc-100 overflow-hidden select-none relative transition-colors duration-300">
       
       {/* Toast Notification */}
       <AnimatePresence>

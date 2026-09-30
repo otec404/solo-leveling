@@ -1714,7 +1714,7 @@ export default function DailyDashboardView({
   };
 
   return (
-    <div className="p-3 sm:p-6 md:p-8 lg:p-10 w-full h-full overflow-y-auto relative bg-black pb-28 md:pb-12 hide-scrollbar">
+    <div className="p-3 sm:p-6 md:p-8 lg:p-10 w-full h-full overflow-y-auto relative bg-[var(--app-bg,#0B0B0D)] pb-28 md:pb-12 hide-scrollbar transition-colors duration-300">
       <div className="max-w-5xl mx-auto flex flex-col gap-5 sm:gap-6">
         
         {/* Sleek Minimal Header */}

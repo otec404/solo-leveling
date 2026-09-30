@@ -146,7 +146,7 @@ function AnalyticsHome({ skills, logs, categoryColors, onSelect, onOpenMaster, o
   const visibleCategories = activeCategory === 'All' ? categories : categories.filter(c => c === activeCategory);
 
   return (
-    <div className="flex-1 h-full flex flex-col bg-zinc-950 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
+    <div className="flex-1 h-full flex flex-col bg-[var(--app-bg,#0B0B0D)] overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto w-full pb-24 md:pb-12">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-8">
           <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-white">Analytics</h1>

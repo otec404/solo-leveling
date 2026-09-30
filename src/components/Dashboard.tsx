@@ -29,6 +29,7 @@ import LegacyImportWizard from './LegacyImportWizard';
 import AppendixReferenceModal from './AppendixReferenceModal';
 import TimerSkillModal from './TimerSkillModal';
 import IconStudioView from './IconStudioView';
+import PWAInstallButton from './PWAInstallButton';
 import { useDataStore } from '../hooks/useDataStore';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { useDynamicAccent } from '../hooks/useDynamicAccent';
@@ -389,7 +390,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-full w-full bg-[#0A0A0F] text-zinc-100 overflow-hidden relative">
+    <div className="flex flex-col md:flex-row h-full w-full bg-[var(--app-bg,#0B0B0D)] text-zinc-100 overflow-hidden relative transition-colors duration-300">
       {!isOnline && (
         <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full bg-zinc-800/90 border border-white/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-zinc-300 shadow-xl backdrop-blur-md">
           <WifiOff className="w-4 h-4 text-amber-400" />
@@ -547,6 +548,8 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
 
         {/* Sidebar Footer */}
         <div className="p-4 border-t border-white/[0.08] space-y-2">
+          <PWAInstallButton variant="sidebar" />
+
           <button
             onClick={() => setIsAppendixModalOpen(true)}
             className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-bold text-purple-300 hover:text-white bg-purple-950/40 hover:bg-purple-900/60 rounded-xl transition-all border border-purple-500/30 shadow-sm"
@@ -566,7 +569,7 @@ export default function Dashboard({ userId, onLogout }: DashboardProps) {
       {/* ==================================================== */}
       {/* MAIN VIEW CONTENT CONTAINER */}
       {/* ==================================================== */}
-      <main className="flex-1 relative min-h-0 bg-[#050508] flex flex-col overflow-hidden">
+      <main className="flex-1 relative min-h-0 bg-[var(--app-bg,#0B0B0D)] flex flex-col overflow-hidden transition-colors duration-300">
         <div className="flex-1 relative overflow-hidden">
           <AnimatePresence mode="wait">
             {activeView === 'list' && (

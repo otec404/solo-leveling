@@ -15,10 +15,15 @@ import {
   CheckCircle2,
   HardDrive,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Smartphone,
+  Zap
 } from 'lucide-react';
 import { Skill, SkillLog, UserProfile, AvatarPreset } from '../types';
 import { THEME_COLORS } from './icons';
+import AndroidAppModal from './AndroidAppModal';
+import ThemeAndFontCustomizer from './ThemeAndFontCustomizer';
+import { useThemeSettings } from '../hooks/useThemeSettings';
 
 interface ProfileViewProps {
   userId: string;
@@ -69,9 +74,14 @@ export default function ProfileView({
     return localStorage.getItem('focusflow_custom_avatar') || '';
   });
 
-  const [activeTheme, setActiveTheme] = useState(() => {
-    return localStorage.getItem('focusflow_theme') || 'cyberpunk-dark';
-  });
+  const {
+    currentThemeId,
+    currentFontId,
+    setTheme,
+    setFont
+  } = useThemeSettings();
+
+  const [isAndroidModalOpen, setIsAndroidModalOpen] = useState(false);
 
   const handleSaveName = () => {
     if (tempName.trim()) {
@@ -99,12 +109,6 @@ export default function ProfileView({
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleThemeChange = (themeId: string) => {
-    setActiveTheme(themeId);
-    localStorage.setItem('focusflow_theme', themeId);
-    document.documentElement.setAttribute('data-theme', themeId);
   };
 
   // ==========================================
@@ -361,43 +365,27 @@ export default function ProfileView({
         </div>
 
         {/* ==================================================== */}
-        {/* 3. THEME CHANGER (FR-PROF-7) */}
+        {/* 3. THEME & TYPOGRAPHY SETTINGS */}
         {/* ==================================================== */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/80 border border-white/10 backdrop-blur-xl shadow-2xl space-y-4">
-          <h3 className="text-lg font-black uppercase tracking-wider text-white flex items-center gap-2">
-            <Palette className="w-5 h-5 text-purple-400" />
-            Visual Theme System (FR-PROF-7)
-          </h3>
-          <p className="text-xs text-zinc-400 font-medium">Select aesthetic cyberpunk or void protocol color palettes</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
-            {THEME_OPTIONS.map(th => {
-              const isSelected = activeTheme === th.id;
-              return (
-                <button
-                  key={th.id}
-                  onClick={() => handleThemeChange(th.id)}
-                  className={`p-4 rounded-2xl border text-left transition-all flex items-center justify-between ${
-                    isSelected 
-                      ? 'bg-white/10 border-cyan-400 shadow-lg' 
-                      : 'bg-zinc-900/40 border-white/5 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span 
-                      className="w-5 h-5 rounded-full border border-white/20 shadow"
-                      style={{ backgroundColor: th.accent }}
-                    />
-                    <div>
-                      <span className="text-xs font-bold text-white block">{th.name}</span>
-                      <span className="text-[10px] font-mono text-zinc-500">{th.bgHex}</span>
-                    </div>
-                  </div>
-                  {isSelected && <CheckCircle2 size={16} className="text-cyan-400" />}
-                </button>
-              );
-            })}
+        <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/80 border border-white/10 backdrop-blur-xl shadow-2xl space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-4">
+            <div>
+              <h3 className="text-lg font-black uppercase tracking-wider text-white flex items-center gap-2">
+                <Palette className="w-5 h-5 text-cyan-400" />
+                Theme Background & Typography Control
+              </h3>
+              <p className="text-xs text-zinc-400 font-medium mt-0.5">
+                Customize between 8 Dark OLED/Midnight backdrops, 8 Light aesthetics, and 8 System Typefaces.
+              </p>
+            </div>
           </div>
+
+          <ThemeAndFontCustomizer 
+            currentThemeId={currentThemeId}
+            currentFontId={currentFontId}
+            onSelectTheme={setTheme}
+            onSelectFont={setFont}
+          />
         </div>
 
         {/* ==================================================== */}
@@ -440,6 +428,39 @@ export default function ProfileView({
             </button>
           </div>
         </div>
+
+        {/* ==================================================== */}
+        {/* 5. ANDROID MOBILE APP & PWA DEPLOYMENT */}
+        {/* ==================================================== */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-zinc-950/80 to-zinc-950/80 border border-emerald-500/30 backdrop-blur-xl shadow-2xl space-y-4 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                <Smartphone size={20} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black uppercase tracking-wider text-white flex items-center gap-2">
+                  Android Mobile Application
+                </h3>
+                <p className="text-xs text-zinc-400 font-medium">
+                  Standalone WebAPK, Google Play packaging, 100% offline sync, and native haptic feedback.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsAndroidModalOpen(true)}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all"
+            >
+              <Zap size={14} className="fill-black" /> Open Manager
+            </button>
+          </div>
+        </div>
+
+        {/* Android App Modal */}
+        <AndroidAppModal 
+          isOpen={isAndroidModalOpen}
+          onClose={() => setIsAndroidModalOpen(false)}
+        />
 
       </div>
     </div>

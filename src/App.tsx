@@ -5,11 +5,14 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Lock, User, ShieldCheck, ChevronRight, LogOut, Sparkles, KeyRound } from 'lucide-react';
+import { Lock, User, ShieldCheck, ChevronRight, LogOut, Sparkles, KeyRound, Smartphone } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import ReloadPrompt from './components/ReloadPrompt';
+import PWAInstallButton from './components/PWAInstallButton';
+import { useThemeSettings } from './hooks/useThemeSettings';
 
 export default function App() {
+  const { currentTheme, currentFont } = useThemeSettings();
   const [id, setId] = useState('');
   const [pass, setPass] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -69,7 +72,10 @@ export default function App() {
   };
 
   return (
-    <div className={`bg-[#050508] text-zinc-100 font-sans selection:bg-cyan-500/30 ${!isLoggedIn ? 'min-h-screen flex items-center justify-center p-4 relative overflow-hidden' : 'h-[100dvh] h-screen overflow-hidden'}`}>
+    <div 
+      style={{ backgroundColor: currentTheme.hex, fontFamily: currentFont.family }}
+      className={`text-zinc-100 selection:bg-cyan-500/30 transition-colors duration-300 ${!isLoggedIn ? 'min-h-screen flex items-center justify-center p-4 relative overflow-hidden' : 'h-[100dvh] h-screen overflow-hidden'}`}
+    >
       <ReloadPrompt />
 
       {!isLoggedIn && (
@@ -96,6 +102,10 @@ export default function App() {
 
                 {/* Header Pod */}
                 <div className="flex flex-col items-center mb-6 text-center">
+                  <div className="flex items-center justify-between w-full mb-2">
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">SECURE PORTAL</span>
+                    <PWAInstallButton variant="badge" />
+                  </div>
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-zinc-800 to-zinc-900 border border-white/15 flex items-center justify-center shadow-[0_0_25px_rgba(6,182,212,0.25)] mb-3 relative group">
                     <ShieldCheck className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.6)]" />
                     <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
